@@ -1,0 +1,10 @@
+project:
+  type: website
+  output-dir: _site
+  resources:
+    - Logos/
+    - styles.css
+
+website:
+  title: "Banff National Park - NABat Trend Results 2020-2025"
+  site-url: https://biodiversitypathways.github.io/Okanagan-WinterMonitoring/

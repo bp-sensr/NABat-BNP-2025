@@ -1,0 +1,471 @@
+---
+title: Banff National Park Activity Trends
+subtitle: Activity Trends 2020-25
+format:
+  html:
+    grid:
+      margin-width: 300px
+    title-block-banner: "#1d4566"
+    title-block-banner-color: "#F4F4F5"
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    toc-expand: true
+    toc-location: left
+    css: styles.css
+  pdf:
+    tbl-pos: "H"
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    colorlinks: true
+    geometry:
+      - margin=1in
+    papersize: letter
+    extra_dependencies: ["float"]
+    include-before-body:
+      text: |
+        \clearpage
+    include-in-header:
+      text: |
+        \usepackage{placeins}
+        \usepackage{float}
+date: last-modified
+author: 
+  - name: "Mandy Kellner"
+    affiliation: "Ministry of Water, Land and Resource Stewardship, British Columbia"
+  - name: "Camila Hurtado"
+    affiliation: "Biodiversity Pathways"
+editor: visual
+bibliography: NABat-NNWHub-references.bib
+nocite: '@*'
+---
+
+```{r}
+#| label: Load packages and data
+#| include: false
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+ 
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(stringr)
+library(kableExtra)
+library(tidyverse)
+library(leaflet)
+library(base64enc)
+library(mapview)
+library(sf)
+
+OK <- read.csv("Data/merged.locations.csv")
+
+#get values for results summary
+# Extract year from Detection.Date
+OK <- OK %>%
+  mutate(Year = year(as.Date(Detection.Date)))
+
+# --- Most recordings: site x year combo ---
+site_year_counts <- OK %>%
+  group_by(Sample.Station.Label, Year) %>%
+  summarise(n_recordings = n(), .groups = "drop")
+
+top_site_year <- site_year_counts %>%
+  slice_max(n_recordings, n = 1, with_ties = FALSE)
+
+top_site      <- top_site_year$Sample.Station.Label
+top_site_yr   <- top_site_year$Year
+top_site_n    <- top_site_year$n_recordings
+
+# --- Most sites sampled: which year had the most unique sites ---
+sites_per_year <- OK %>%
+  group_by(Year) %>%
+  summarise(n_sites = n_distinct(Sample.Station.Label), .groups = "drop")
+
+top_sampled_yr     <- sites_per_year %>% slice_max(n_sites, n = 1, with_ties = FALSE)
+top_sampled_year   <- top_sampled_yr$Year
+top_sampled_nsites <- top_sampled_yr$n_sites
+
+# ------------------------- Species summaries ------------------------
+# Codes to exclude
+exclude_codes <- c("NOISE", "NoID", "HIF", "LOF", "HILO")
+
+spp_clean <- OK %>%
+  filter(
+    !Species.Code %in% exclude_codes,
+    !is.na(Species.Code),
+    Species.Code != ""
+  )
+
+# Most common species (by number of detections)
+spp_counts <- spp_clean %>%
+  group_by(Species.Code) %>%
+  summarise(n = n(), .groups = "drop")
+
+top_spp   <- spp_counts %>% slice_max(n, n = 1, with_ties = FALSE)
+top_spp_code <- top_spp$Species.Code
+top_spp_n    <- top_spp$n
+
+# Total confirmed species: exactly 4 characters, after exclusions
+confirmed_spp <- spp_clean %>%
+  filter(nchar(as.character(Species.Code)) == 4) %>%
+  distinct(Species.Code)
+
+n_confirmed <- nrow(confirmed_spp)
+```
+
+```{r}
+#| label: Prep data for map
+#| include: false
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+# ── 1. Summarise species per site ─────────────────────────────────────────────
+exclude_ids <- c("Noise", "NoID", "NOISE", "NOID", "")
+
+species_by_site_year <- OK %>%
+  filter(!Species.Code %in% exclude_ids,
+         !is.na(Species.Code)) %>%
+  mutate(
+    year = format(as.Date(Detection.Date), "%Y"),
+    # For pie charts only: collapse couplets and group codes into Other
+    species_pie = case_when(
+      nchar(Species.Code) == 8                               ~ "Other",
+      toupper(Species.Code) %in% c("HILO", "HIF", "LOF")    ~ "Other",
+      !is.na(Bat.Species.Group.Code) &
+        Bat.Species.Group.Code != ""                         ~ "Other",
+      .default = Species.Code
+    ),
+    # For tables: keep everything as-is
+    species_table = Species.Code
+  ) %>%
+  group_by(Sample.Station.Label, Longitude..DD., Latitude..DD., year, species_pie, species_table) %>%
+  summarise(n = n(), .groups = "drop")
+
+# ── 2. Build site coords ───────────────────────────────────────────────────────
+map_data <- species_by_site_year %>%
+  rename(site_name = Sample.Station.Label,
+         lon = Longitude..DD.,
+         lat = Latitude..DD.) %>%
+  filter(!is.na(lat))
+
+# ── 3. SVG pie helper ─────────────────────────────────────────────────────────
+make_pie_svg <- function(values, colors, size = 70) {
+  total <- sum(values)
+  if (total == 0) return(NULL)
+  fracs  <- values / total
+  angles <- cumsum(c(0, fracs)) * 2 * pi
+  r <- size / 2 - 2
+  slices <- purrr::map2_chr(seq_along(values), colors, function(i, col) {
+    a0 <- angles[i]; a1 <- angles[i + 1]
+    if (abs(a1 - a0) >= 2 * pi - 1e-6) {
+      sprintf('<circle cx="%s" cy="%s" r="%s" fill="%s"/>',
+              size/2, size/2, r, col)
+    } else {
+      x0 <- size/2 + r*sin(a0); y0 <- size/2 - r*cos(a0)
+      x1 <- size/2 + r*sin(a1); y1 <- size/2 - r*cos(a1)
+      large <- if ((a1 - a0) > pi) 1L else 0L
+      sprintf('<path d="M %s %s L %s %s A %s %s 0 %s 1 %s %s Z" fill="%s" stroke="white" stroke-width="1"/>',
+              size/2, size/2, x0, y0, r, r, large, x1, y1, col)
+    }
+  })
+  svg <- sprintf('<svg xmlns="http://www.w3.org/2000/svg" width="%s" height="%s">%s</svg>',
+                 size, size, paste(slices, collapse = ""))
+  paste0("data:image/svg+xml;base64,", base64enc::base64encode(charToRaw(svg)))
+}
+
+# ── 4. Colour palette ─────────────────────────────────────────────────────────
+sp_colors <- c(
+  "EPFU" = "#F28E2B",
+  "LANO" = "#E15759",
+  "MYEV" = "#4E79A7",
+  "MYLU" = "#59A14F",
+  "MYVO" = "#9B59B6",
+  "MYYU" = "#76B7B2",
+  "PAHE" = "#EDC948",
+  "Other" = "#AAAAAA"
+)
+
+# ── 5. Helper: build one HTML table body ──────────────────────────────────────
+make_sp_table <- function(sp_df, pie_colors) {
+  sp_df %>%
+    arrange(desc(n)) %>%
+    mutate(pct = round(n / sum(n) * 100, 1)) %>%
+    purrr::pmap_chr(function(species, n, pct) sprintf(
+      '<tr><td><span style="display:inline-block;width:10px;height:10px;border-radius:50%%;background:%s;margin-right:4px"></span>%s</td><td align="right">%s</td><td align="right">%s%%</td></tr>',
+      ifelse(species %in% names(pie_colors), pie_colors[species], "#AAAAAA"),
+      species, n, pct
+    )) %>%
+    paste(collapse = "")
+}
+
+# ── 6. Build site list ────────────────────────────────────────────────────────
+site_list <- map_data %>%
+  group_by(site_name, lat, lon) %>%
+  summarise(
+    sp_data = list(tibble(species_pie, species_table, n, year)),
+    total   = sum(n),
+    years   = list(sort(unique(year))),
+    .groups = "drop"
+  )
+
+# ── 7. Draw map ───────────────────────────────────────────────────────────────
+m_ok <- leaflet() %>%
+  addProviderTiles(providers$CartoDB.Positron)
+
+all_pie_colors <- c()
+
+for (i in seq_len(nrow(site_list))) {
+  row   <- site_list[i, ]
+  sp    <- row$sp_data[[1]]
+  years <- row$years[[1]]
+
+  if (nrow(sp) == 0 || sum(sp$n) == 0) next
+
+  # -- Pie chart: uses species_pie (Other-collapsed), all years ----------------
+  sp_pie_all <- sp %>%
+    group_by(species_pie) %>%
+    summarise(n = sum(n), .groups = "drop") %>%
+    arrange(desc(n)) %>%
+    rename(species = species_pie)
+
+  top5 <- sp_pie_all$species[1:min(5, nrow(sp_pie_all))]
+
+  sp_pie <- sp_pie_all %>%
+    mutate(species = if_else(species %in% top5, species, "Other")) %>%
+    group_by(species) %>%
+    summarise(n = sum(n), .groups = "drop") %>%
+    arrange(desc(n))
+
+  unknown_sp    <- setdiff(sp_pie$species, names(sp_colors))
+  fallback_cols <- setNames(
+    colorRampPalette(RColorBrewer::brewer.pal(8, "Dark2"))(max(length(unknown_sp), 1)),
+    unknown_sp)
+  pie_colors <- setNames(c(sp_colors, fallback_cols)[sp_pie$species], sp_pie$species)
+
+  # -- Table colours: based on raw species codes (no Other collapsing) ---------
+  all_sp       <- unique(sp$species_table)
+  unknown_all  <- setdiff(all_sp, names(sp_colors))
+  fallback_all <- setNames(
+    colorRampPalette(RColorBrewer::brewer.pal(8, "Dark2"))(max(length(unknown_all), 1)),
+    unknown_all)
+  all_colors <- c(sp_colors, fallback_all)
+
+  all_pie_colors <- c(all_pie_colors, pie_colors)
+
+  uri <- make_pie_svg(sp_pie$n, pie_colors[sp_pie$species])
+
+  uid <- gsub("[^a-zA-Z0-9]", "_", row$site_name)
+
+  # -- All-years table: raw species codes --------------------------------------
+  sp_all_table <- sp %>%
+    group_by(species_table) %>%
+    summarise(n = sum(n), .groups = "drop") %>%
+    rename(species = species_table)
+
+  all_table_html <- paste0(
+    '<tr><th align="left">Species</th><th align="right">n</th><th align="right">%%</th></tr>',
+    make_sp_table(sp_all_table, all_colors)
+  )
+
+  # -- Tab buttons + per-year tables -------------------------------------------
+  year_button_list <- c(
+    sprintf(
+      '<button onclick="(function(b){var uid=\'%s\';var rows=b.getAttribute(\'data-rows\');var tot=b.getAttribute(\'data-tot\');document.getElementById(\'tbl_\'+uid).innerHTML=rows;document.getElementById(\'lbl_\'+uid).innerHTML=\'All years &mdash; \'+tot+\' detections\';[].forEach.call(document.querySelectorAll(\'[data-uid%s]\'),function(x){x.style.background=\'#e0e0e0\';x.style.color=\'#333\'});b.style.background=\'#4E79A7\';b.style.color=\'white\';})(this)" data-uid%s="1" data-tot="%s" data-rows="%s" id="btn_%s_all" style="margin:2px;padding:3px 8px;border:1px solid #ccc;border-radius:4px;background:#4E79A7;color:white;cursor:pointer;font-size:11px;">All</button>',
+      uid, uid, uid, row$total,
+      htmltools::htmlEscape(all_table_html, attribute = TRUE),
+      uid
+    ),
+    purrr::map_chr(years, function(yr) {
+      sp_yr <- sp %>%
+        filter(year == yr) %>%
+        group_by(species_table) %>%
+        summarise(n = sum(n), .groups = "drop") %>%
+        rename(species = species_table)
+      yr_total <- sum(sp_yr$n)
+      yr_table_html <- paste0(
+        '<tr><th align="left">Species</th><th align="right">n</th><th align="right">%%</th></tr>',
+        make_sp_table(sp_yr, all_colors)
+      )
+      sprintf(
+        '<button onclick="(function(b){var uid=\'%s\';var rows=b.getAttribute(\'data-rows\');var tot=b.getAttribute(\'data-tot\');var yr=b.getAttribute(\'data-yr\');document.getElementById(\'tbl_\'+uid).innerHTML=rows;document.getElementById(\'lbl_\'+uid).innerHTML=yr+\' &mdash; \'+tot+\' detections\';[].forEach.call(document.querySelectorAll(\'[data-uid%s]\'),function(x){x.style.background=\'#e0e0e0\';x.style.color=\'#333\'});b.style.background=\'#4E79A7\';b.style.color=\'white\';})(this)" data-uid%s="1" data-yr="%s" data-tot="%s" data-rows="%s" id="btn_%s_%s" style="margin:2px;padding:3px 8px;border:1px solid #ccc;border-radius:4px;background:#e0e0e0;color:#333;cursor:pointer;font-size:11px;">%s</button>',
+        uid, uid, uid, yr, yr_total,
+        htmltools::htmlEscape(yr_table_html, attribute = TRUE),
+        uid, yr, yr
+      )
+    })
+  ) %>% paste(collapse = "")
+
+  # -- Full popup --------------------------------------------------------------
+ n_species <- nrow(sp_all_table)
+  table_style <- if (n_species > 15) {
+    'style="width:100%;margin-top:4px;display:block;max-height:250px;overflow-y:auto;"'
+  } else {
+    'style="width:100%;margin-top:4px;"'
+  }
+
+  popup <- sprintf(
+    '<div style="font-family:sans-serif;min-width:220px;max-width:280px">
+  <b>%s</b>
+  <hr style="margin:5px 0"/>
+  <div style="margin-bottom:6px">%s</div>
+  <b id="lbl_%s">All years &mdash; %s detections</b>
+  <table id="tbl_%s" %s>%s</table>
+</div>',
+    row$site_name,
+    year_button_list,
+    uid, row$total,
+    uid,
+    table_style,
+    all_table_html
+  )
+
+  m_ok <- m_ok %>% addMarkers(
+    lng   = row$lon, lat = row$lat,
+    icon  = makeIcon(iconUrl = uri, iconWidth = 70, iconHeight = 70,
+                     iconAnchorX = 35, iconAnchorY = 35),
+    popup = popup,
+    label = row$site_name
+  )
+} # closes for loop
+
+# ── 8. Legend ─────────────────────────────────────────────────────────────────
+legend_colors <- all_pie_colors[!duplicated(names(all_pie_colors))]
+legend_colors <- legend_colors[order(names(legend_colors))]
+if ("Other" %in% names(legend_colors)) {
+  legend_colors <- c(legend_colors[names(legend_colors) != "Other"],
+                     legend_colors["Other"])
+}
+
+legend_html <- htmltools::tags$div(
+  style = "background:white;padding:10px 14px;border-radius:6px;box-shadow:0 1px 5px rgba(0,0,0,.3);font-family:sans-serif;font-size:12px;max-height:300px;overflow-y:auto;",
+  htmltools::tags$b("Species"),
+  htmltools::tags$hr(style = "margin:4px 0"),
+  htmltools::HTML(paste(purrr::map_chr(names(legend_colors), ~sprintf(
+    '<div style="display:flex;align-items:center;margin-bottom:3px"><span style="display:inline-block;width:12px;height:12px;border-radius:50%%;background:%s;margin-right:6px"></span>%s</div>',
+    legend_colors[.x], .x)), collapse = ""))
+)
+
+m_ok <- m_ok %>% addControl(legend_html, position = "bottomright")
+
+```
+
+{{< pagebreak >}}
+
+# Land Acknowledgement
+
+Biodiversity Pathways respectfully acknowledges that our work takes place on Treaty 8 and Douglas Treaties Territories as well as the traditional and unceded territories of First Nations and Métis Peoples across all regions of British Columbia, whose histories, languages, and cultures are deeply connected to the biodiversity we monitor. We acknowledge the traditional teachings of the lands that we work on, and that reciprocal, meaningful, and respectful relationships with Indigenous peoples make our work possible. We are deeply grateful for their stewardship of these lands, and we are committed to supporting Indigenous-led monitoring programs, while learning Indigenous ways of knowing, being, and doing.
+
+# Background
+
+# Methods
+
+Banff National Park has monitored one NABat grid cell using three sites and has collected acoustic data from 2020 to 2025. Recordings were processed using an automated classifier (Kaleidoscope\'s Bats of North America 5.4.0 classifier) to assign species identifications and exclude non-bat recordings. Manual identifications were used only when automated classifications were recorded as noise or were unavailable.
+
+## *Data processing*
+
+Species presence and nightly activity were calculated from a site-night-species table constructed for all sampled nights. Sampling effort was defined as each unique site-night with acoustic recordings. Species codes were standardized across data sources prior to analysis. Weather covariates were summarized for each sampling night and included mean temperature, mean relative humidity, total precipitation, and mean wind speed. MMoon covariates were calculated for each site-night and included moon illumination, and an indicator of moon position. Mean nightly passes included all recordings with species or couplet labels, with couplets split and counted for both species. For trend analyses, MYLU, MYSE, and MYVO were pooled into a single Myotis group (40KMYO).
+
+## *Statistical analysis*
+
+Statistical trend analyses were conducted for EPFU, LABO, LACI, LANO, and 40KMYO. Models were fit to nightly detection counts using negative binomial generalized linear mixed models (GLMMs) with a log link. Sites were included as a random intercept. Candidate model structures included year, Julian date, quadratic Julian date, and species-specific covariates. Trend analyses are presented only for species confirmed to be present at the sites through manual verification and for which models fully converged.
+
+# Results
+
+Across the 2020--2025 monitoring period, a total of 35,103 bat detections were recorded across the three sites in the Banff NABat grid cell. The Myotis group (40KMYO) had the highest number of detections (29,209; mean = 111.00). This was followed by Hoary Bat (2,009; mean = 7.61), Silver-haired Bat (1,773; mean = 6.72), Big Brown Bat (1,355; mean = 5.13), and Eastern Red Bat (757; mean = 2.87).
+
+## *Species detected and mean nightly activity*
+
+Detected species and nightly bat activity varied among years and sites (Table 1). In total, up to eight species were detected, with Big Brown Bat (EPFU), Silver-haired Bat (LANO), Hoary Bat (LACI), and Eastern Red Bat (LABO) detected across most years and sites. Myotis species showed more variable detections: Little Brown Myotis (MYLU) was detected frequently, while Long-legged Myotis (MYEV), Western Long-eared Myotis (MYVO), and Long-eared Myotis (MYSE) were detected less consistently.
+
+Nightly bat activity varied across quadrants and years. Activity was highest in NE and NW in 2022--2023, while SW remained consistently low. NW showed a pronounced peak in 2024, the highest across all years, whereas activity in 2025 was more uniform among quadrants. Overall, while several species were consistently detected across the study period, both species presence and nightly activity showed strong spatial and temporal variability. Differences in sampling effort among quadrants and years likely contributed to some level to this pattern.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| tbl-cap: Monitoring effort and bat species detections in the Banff (2020–2025). Mean nightly recordings (± SD) represent total bat detections per night summed across species. Species detections indicate presence (X) within each year and quadrant based on combined automated and manually reviewed identifications.
+#| label: tbl-sppmean
+
+
+```
+
+::: {.content-visible when-format="html"}
+## Interactive Map
+:::
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-cap: Proportion of species bat passes at each site.
+#| label: fig-monitoring-locations
+
+if (knitr::pandoc_to("html")){
+  m_ok
+}else {
+  dir.create(file.path(getwd(), "Figures"), showWarnings = FALSE)
+  map_file <- file.path(getwd(), "Figures", "survey_map.png")
+
+  # Attach legend for the static screenshot
+  m_pdf <- m_ok %>%
+    addControl(legend_html, position = "bottomright")
+
+  tryCatch({
+    mapview::mapshot2(
+      m_pdf,
+      file = map_file,
+      delay = 5,
+      vwidth  = 900,
+      vheight = 1100
+    )
+  }, error = function(e) {
+    message("mapshot2 failed: ", e$message)
+  })
+
+  knitr::include_graphics(map_file)
+}
+```
+
+## *Species Trends*
+
+Models converged for five species/groups: Big Brown Bat (EPFU), Eastern Red Bat (LABO), Hoary Bat (LACI), Silver-haired Bat (LANO), and the combined Myotis group (\@fig-trends). Significant increases in nightly activity were detected for Big Brown Bat (β = 0.74, SE = 0.09, z = 8.11, p \< 0.001) and Eastern Red Bat (β = 0.81, SE = 0.10, z = 7.88, p \< 0.001). In contrast, no significant temporal trend was detected for Hoary Bat (β = 0.10, SE = 0.09, z = 1.10, p = 0.270), Silver-haired Bat (β = 0.06, SE = 0.13, z = 0.48, p = 0.633), or the combined Myotis group (β = 0.22, SE = 0.12, z = 1.81, p = 0.071).
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| fig-cap: Species relative activity trends from 2020–2025 in the Banff NABat grid cell.Lines show trend estimates of nightly detections with 95% confidence intervals. Solid lines indicate significant trends (p < 0.05), and dashed lines indicate non-significant trends (p > 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.
+#| label: fig-trends
+
+
+
+```
+
+# Discussion
+
+There are several underground cave/talus-cave systems known to BC Parks. Assessment of bat use, species presence, and timing of use could be accomplished through acoustic monitoring and/or guano collection. One such area is at Doctor's wall; during this survey, nets were set up near the entrances of identified caves, but no bats were detected during emergence or caught in the nets. One of the project partners set up an experimental acoustic detector inside the larger cave on November 12, 2024. As of March 2025, this detector had not been retrieved. Options for future work include additional placement of bat detectors at openings or inside caves, single-species DNA analysis through collection of single pellets of guano in paper envelopes (Wildlife Genetics International), and/or multi-species DNA analysis through collection of multiple guano samples (Northern Arizona University Species from Feces lab).
+
+## Recommendations
+
+1.  Explore use of detector array to increase understanding of bat winter movements and potential travel corridors as well as inform capture efforts.
+2.  Target Gilles Creek and the Spring for additional monitoring and capture work as the area currently believed to offer the best chance of successful captures.
+3.  Increase understanding of bat use of cave/talus features that are known or suspected to be used by bats, through passive acoustic monitoring and guano collection to determine timing of use and species.
+
+# Acknowledgements
+
+This work was supported by funding from the BC Parks License Plate Program, as well as in-kind staff time, vehicles, and equipment from BC Parks and WLRS.
+
+{{< pagebreak >}}
+
+# Literature Cited
