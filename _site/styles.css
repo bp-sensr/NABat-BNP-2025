@@ -1,0 +1,23 @@
+.quarto-title-block .quarto-title-banner {
+  background-image: 
+    url(Logos/BP-Logo-Hz-invert-notag.png),
+    url(Logos/BC_WLRS_H_CMYK_rev.png);
+  background-size: 
+    250px,
+    350px;
+  background-position: 
+    left center,
+    right 5px center;
+  background-repeat: no-repeat;
+  padding-left: 10px;
+  padding-right: 10px;
+  background-origin: content-box;
+}
+
+code {
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  background-color: inherit;
+}
