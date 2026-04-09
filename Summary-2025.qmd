@@ -69,7 +69,37 @@ library(sf)
 
 Biodiversity Pathways respectfully acknowledges that our work takes place on Treaty 8 and Douglas Treaties Territories as well as the traditional and unceded territories of First Nations and Métis Peoples across all regions of British Columbia, whose histories, languages, and cultures are deeply connected to the biodiversity we monitor. We acknowledge the traditional teachings of the lands that we work on, and that reciprocal, meaningful, and respectful relationships with Indigenous peoples make our work possible. We are deeply grateful for their stewardship of these lands, and we are committed to supporting Indigenous-led monitoring programs, while learning Indigenous ways of knowing, being, and doing.
 
-# Background
+# Introduction
+
+## Overview of NABat and the NNW Bat Hub
+
+North American Bat Monitoring Program (NABat) is a large-scale coordinated effort to monitor bat species to address gaps in knowledge and lack of long-term studies across North America [@loeb2015Plan].The program is administered by the US Geological Survey (USGS) and implemented by the North by Northwest Bat (NNW) Hub in British Columbia, Alberta and S.E Alaska.
+
+NNW Bat Hub was established in 2024 with collaboration from Government of British Columbia, Government of Alberta, and Government of Alaska. The hub was formed by combining the previous Alberta Hub and the BC and southeast Alaska (BC-SE_AK) Hub. The implementation of the program within Alberta has key support from Parks Canada, government of Alberta staff, other wildlife biologists, Indigenous Nations, community members and naturalists across the province.
+
+## Threats to bat populations in Alberta
+
+Bat populations in Alberta face a wide range of threats including forestry practices, anthropogenic expansion, and climate change among others. Of these threats, White-Nose Syndrome and wind energy development have emerged as two of the highest-priority concerns.
+
+### White-Nose Syndrome
+
+White-nose Syndrome (WNS) is a deadly fungal disease caused by the fungus *Pseudogymnoascus destructans* (*Pd*) that affects hibernating bats. As of 2026, WNS has been confirmed in nine Canadian provinces including Alberta, and *Pd* has been detected within British Columbia at two locations ( @fig-WNS: @cwhc-rcsf2024Canadian). Continued monitoring of populations in AB is critical as *Pd* and WNS continue to spread throughout the province.
+
+### Wind Energy Development
+
+Wind energy farms has been linked to high mortality rates across all bat species in Canada, with long distance migratory species accounting for 73% of recorded fatalities [@zimmerling2016Bat]. In British Columbia alone, one estimate predicts an annual mortality rate of 680 bats per wind turbine [@zimmerling2016Bat]. There are currently close to 300 turbines active in the province across 10 different projects with the most turbines found in the Peace region (@fig-turbines). In late 2024, B.C announced nine new wind projects which would require the installation of over 300 new wind turbines across the province [@ministryofenergyandclimatesolutions2024BC]. As of 2023, COSEWIC designated all three of B.C.'s long distance migratory species as endangered due in part to fatalities at wind turbine facilities [@committeeonthestatusofendangeredwildlifeincanada2023Hoary].
+
+## Acoustic Monitoring of Bats
+
+Acoustic recording is a cost-effective method for monitoring bat populations across large geographic and temporal scales. However, several limitations affect the conclusions that can be drawn from these data:
+
+1.  **Imperfect species identification** — Unlike birds, bats rely on echolocation rather than song, and species with similar ecology and physiology often produce overlapping calls. While detectors are deployed to maximize recordings of diagnostic Search Phase calls, species identifiability will always vary depending on the local assemblage.
+
+2.  **Variable detectability** — Bat species are not equally detectable acoustically. Larger, wide-ranging species produce louder calls that travel farther, while smaller species with quieter calls or specialized habitat use are less reliably recorded. As a result, trend estimates cannot be produced for all species using acoustic methods alone.
+
+3.  **Data variability** — Many factors influence recording quality and bat activity, including wind speed, humidity, and local habitat. Additionally, stationary detectors cannot account for individual recapture, meaning acoustic data can only inform relative activity and occupancy.
+
+4.  **Processing limitations** — Auto-ID software enables efficient processing of large datasets but has known high misclassification rates for bats, making manual verification necessary to ensure accurate results.
 
 # Methods
 
