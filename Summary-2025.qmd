@@ -67,15 +67,21 @@ library(sf)
 
 # Land Acknowledgement
 
-Biodiversity Pathways respectfully acknowledges that our work takes place on Treaty 8 and Douglas Treaties Territories as well as the traditional and unceded territories of First Nations and Métis Peoples across all regions of British Columbia, whose histories, languages, and cultures are deeply connected to the biodiversity we monitor. We acknowledge the traditional teachings of the lands that we work on, and that reciprocal, meaningful, and respectful relationships with Indigenous peoples make our work possible. We are deeply grateful for their stewardship of these lands, and we are committed to supporting Indigenous-led monitoring programs, while learning Indigenous ways of knowing, being, and doing.
+Biodiversity Pathways respectfully acknowledges that our work takes place on the territories of Treaties 6, 7, 8, and the Métis homeland, traditional and ancestral lands of First Nations and Métis Peoples, whose histories, languages, and cultures are directly linked to the biodiversity that we monitor.
+
+We acknowledge the traditional teachings of the lands that we work on, and that reciprocal, meaningful, and respectful relationships with Indigenous peoples make our work possible. We are deeply grateful for their stewardship of these lands, and we are committed to supporting Indigenous-led monitoring programs, while learning Indigenous ways of knowing, being, and doing.
 
 # Introduction
 
 ## Overview of NABat and the NNW Bat Hub
 
-North American Bat Monitoring Program (NABat) is a large-scale coordinated effort to monitor bat species to address gaps in knowledge and lack of long-term studies across North America [@loeb2015Plan].The program is administered by the US Geological Survey (USGS) and implemented by the North by Northwest Bat (NNW) Hub in British Columbia, Alberta and S.E Alaska.
+North American Bat Monitoring Program (NABat) is a large-scale coordinated effort to monitor bat species to address gaps in knowledge and lack of long-term studies across North America [@loeb2015Plan].The program is administered by the US Geological Survey (USGS) and implemented by the North by Northwest Bat (NNW) Hub in Alberta, British Columbia, and S.E Alaska.
 
-NNW Bat Hub was established in 2024 with collaboration from Government of British Columbia, Government of Alberta, and Government of Alaska. The hub was formed by combining the previous Alberta Hub and the BC and southeast Alaska Hub. The implementation of the program within Alberta has key support from Parks Canada, government of Alberta staff, other wildlife biologists, Indigenous Nations, community members and naturalists across the province.
+NNW Bat Hub was established in 2024 with collaboration from Government of Alberta, Government of British Columbia, and Government of Alaska. The hub was formed by combining the previous Alberta Hub and the BC and southeast Alaska Hub. The implementation of the program within Alberta has key support from Parks Canada, government of Alberta staff, other wildlife biologists, Indigenous Nations, community members and naturalists across the province.
+
+### NABat Monitoring in Banff National Park
+
+Banff National Park has been conducting NABat monitoring in one NABat Grid cell (Grid Cell Id: 148842), which includes 3 long term monitoring sites and a driving transect since 2020.
 
 ## Threats to bat populations in Alberta
 
@@ -83,15 +89,15 @@ Bat populations in Alberta face a wide range of threats including forestry pract
 
 ### White-Nose Syndrome
 
-White-nose Syndrome (WNS) is a deadly fungal disease caused by the fungus *Pseudogymnoascus destructans* (*Pd*) that affects hibernating bats. As of 2026, WNS has been confirmed in nine Canadian provinces including Alberta, and *Pd* has been detected within British Columbia at two locations ( @fig-WNS: @cwhc-rcsf2024Canadian). Continued monitoring of populations in AB is critical as *Pd* and WNS continue to spread throughout the province.
+White-nose Syndrome (WNS) is a deadly fungal disease caused by the fungus *Pseudogymnoascus destructans* (*Pd*) that affects hibernating bats. As of 2026, WNS has been confirmed in nine Canadian provinces including Alberta ( @fig-WNS: @cwhc-rcsf2024Canadian). Since Pd was first confirmed in AB in 2022, the fungus and the ensuing disease have spread through the province at a rapid pase and has now been detected at the provinces largest known hibernacula, Cadamun cave (Wilkinson, pers. comm.) Continued monitoring of populations in AB is critical as *Pd* and WNS continue to spread throughout the province.
 
 ![White-nose syndrome (WNS) and Pseudogymnoascus destructans (Pd) occurrence in Canada. Source: CWHC-RCSF (2026)](Figures/Canada-PD.png){#fig-WNS}
 
 ### Wind Energy Development
 
-Wind energy farms has been linked to high mortality rates across all bat species in Canada, with long distance migratory species accounting for 73% of recorded fatalities [@zimmerling2016Bat]. In British Columbia alone, one estimate predicts an annual mortality rate of 680 bats per wind turbine [@zimmerling2016Bat]. There are currently close to 300 turbines active in the province across 10 different projects with the most turbines found in the Peace region (@fig-turbines). In late 2024, B.C announced nine new wind projects which would require the installation of over 300 new wind turbines across the province [@ministryofenergyandclimatesolutions2024BC]. As of 2023, COSEWIC designated all three of B.C.'s long distance migratory species as endangered due in part to fatalities at wind turbine facilities [@committeeonthestatusofendangeredwildlifeincanada2023Hoary].
+Wind energy farms has been linked to high mortality rates across all bat species in Canada, with long distance migratory species accounting for 73% of recorded fatalities [@zimmerling2016Bat]. In Alberta alone, one estimate predicts an annual mortality rate 10.9 bats per turbine [@zimmerling2016Bat]. There are currently 1,778 turbines active in the province across 49 different projects with the most turbines found in the grassland ecosystem (@NRCan2025Wind ; @fig-turbines). Using @zimmerling2016Bat estimate, we estimate that Alberta is loosing 19,380 bats per year to wind turbine collisions. As of 2023, COSEWIC designated all three of Alberta's long distance migratory species as endangered due in part to fatalities at wind turbine facilities [@committeeonthestatusofendangeredwildlifeincanada2023Hoary].
 
-![Current wind turbines in Alberta based on the Canadian Wind Turbine Database (Source: https://search.open.canada.ca/openmap/79fdad93-9025-49ad-ba16-c26d718cc070)](Figures/AB-Wind.JPG){#fig-turbines}
+![Current wind turbines in Alberta based on the Canadian Wind Turbine Database (Source: @NRCan2025Wind)](Figures/AB-Wind.JPG){#fig-turbines}
 
 ## Acoustic Monitoring of Bats
 
