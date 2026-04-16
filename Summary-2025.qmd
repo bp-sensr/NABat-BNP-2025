@@ -81,7 +81,7 @@ NNW Bat Hub was established in 2024 with collaboration from Government of Albert
 
 ### NABat Monitoring in Banff National Park
 
-Banff National Park has been conducting NABat monitoring in one NABat Grid cell (Grid Cell Id: 148842), which includes 3 long term monitoring sites and a driving transect since 2020.
+Banff National Park has been conducting NABat monitoring within one NABat grid cell (Grid Cell ID: 148842) since 2020. Monitoring efforts include three long-term stationary sites and a driving transect. In addition, 10 supplementary sites were surveyed in 2022 and 2023 to develop a bat species inventory for the park. All data from 2020 to 2023 were processed using automated identification software, while 2024 and 2025 data have been manually verified.
 
 ## Threats to bat populations in Alberta
 
@@ -95,7 +95,7 @@ White-nose Syndrome (WNS) is a deadly fungal disease caused by the fungus *Pseud
 
 ### Wind Energy Development
 
-Wind energy farms has been linked to high mortality rates across all bat species in Canada, with long distance migratory species accounting for 73% of recorded fatalities [@zimmerling2016Bat]. In Alberta alone, one estimate predicts an annual mortality rate 10.9 bats per turbine [@zimmerling2016Bat]. There are currently 1,778 turbines active in the province across 49 different projects with the most turbines found in the grassland ecosystem (@NRCan2025Wind ; @fig-turbines). Using @zimmerling2016Bat estimate, we estimate that Alberta is loosing 19,380 bats per year to wind turbine collisions. As of 2023, COSEWIC designated all three of Alberta's long distance migratory species as endangered due in part to fatalities at wind turbine facilities [@committeeonthestatusofendangeredwildlifeincanada2023Hoary].
+Wind energy farms has been linked to high mortality rates across all bat species in Canada, with long distance migratory species accounting for 73% of recorded fatalities [@zimmerling2016Bat]. In Alberta alone, one estimate predicts an annual mortality rate 10.9 bats per turbine [@zimmerling2016Bat]. There are currently 1,778 turbines active in the province across 49 different projects with the most turbines found in the grassland ecosystem (@NRCan2025Wind ; @fig-turbines). Using @zimmerling2016Bat estimate, Alberta is estimated to be loosing 19,380 bats per year to wind turbine collisions. As of 2023, COSEWIC designated all three of Alberta's long distance migratory species as endangered due in part to fatalities at wind turbine facilities [@committeeonthestatusofendangeredwildlifeincanada2023Hoary].
 
 ![Current wind turbines in Alberta based on the Canadian Wind Turbine Database (Source: @NRCan2025Wind)](Figures/AB-Wind.JPG){#fig-turbines}
 
@@ -103,27 +103,45 @@ Wind energy farms has been linked to high mortality rates across all bat species
 
 Acoustic recording is a cost-effective method for monitoring bat populations across large geographic and temporal scales. However, several limitations affect the conclusions that can be drawn from these data:
 
-1.  **Imperfect species identification** — Unlike birds, bats rely on echolocation rather than song, and species with similar ecology and physiology often produce overlapping calls. While detectors are deployed to maximize recordings of diagnostic Search Phase calls, species identifiability will always vary depending on the local assemblage.
+1.  **Imperfect species identification** --- Unlike birds, bats rely on echolocation rather than song, and species with similar ecology and physiology often produce overlapping calls. While detectors are deployed to maximize recordings of diagnostic Search Phase calls, species identifiability will always vary depending on the local assemblage.
 
-2.  **Variable detectability** — Bat species are not equally detectable acoustically. Larger, wide-ranging species produce louder calls that travel farther, while smaller species with quieter calls or specialized habitat use are less reliably recorded. As a result, trend estimates cannot be produced for all species using acoustic methods alone.
+2.  **Variable detectability** --- Bat species are not equally detectable acoustically. Larger, wide-ranging species produce louder calls that travel farther, while smaller species with quieter calls or specialized habitat use are less reliably recorded. As a result, trend estimates cannot be produced for all species using acoustic methods alone.
 
-3.  **Data variability** — Many factors influence recording quality and bat activity, including wind speed, humidity, and local habitat. Additionally, stationary detectors cannot account for individual recapture, meaning acoustic data can only inform relative activity and occupancy.
+3.  **Data variability** --- Many factors influence recording quality and bat activity, including wind speed, humidity, and local habitat. Additionally, stationary detectors cannot account for individual recapture, meaning acoustic data can only inform relative activity and occupancy.
 
-4.  **Processing limitations** — Auto-ID software enables efficient processing of large datasets but has known high misclassification rates for bats, making manual verification necessary to ensure accurate results.
+4.  **Processing limitations** --- Auto-ID software enables efficient processing of large datasets but has known high misclassification rates for bats, making manual verification necessary to ensure accurate results.
 
 # Methods
 
-Banff National Park has monitored one NABat grid cell using three sites and has collected acoustic data from 2020 to 2025. Recordings were processed using an automated classifier (Kaleidoscope's Bats of North America 5.4.0 classifier) to assign species identifications and exclude non-bat recordings.
+## *2025 Deployments*
 
-Manual verification was only perfomed in 2024 and 2025. For the trends estimates only autoID results were included unless the manual verification results indicated that what was tagged as a bat was actually noise. We only included the autoID results for the trends to keep it consistent, since looking at the manually verified results for only the last two years would have made it difficult to interpret the results across the years.
+### Stationary Surveys
+
+Stationary deployment sites are strategically chosen to record the full range of bat species in each cell while maximixing recording quality, avoiding sources of noise, and surveying different habitat types across the grid cell. 
+
+Banff biologists deployed three stationary bat detectors in strategically selected bat habitat in 3 distinct quadrants within the grid cell. Stationary sites were deployed . Deployment set up followed the standards set by @loeb2015Plan.
+
+### Transect Surveys
+
+The driving transect protocol closely follows that established by @loeb2015Plan. Two replicates of a mobile transect are driven at 30 -- 35km/h with a bat detector on the roof to record bats along the road. Transects are conducted during the same time period in which stationary detectors are deployed.
 
 ## *Manual Verification of 2025 Data*
 
-## *Data processing*
+All recordings were processed using an automated classifier (Kaleidoscope's Bats of North America 5.4.0 classifier) to assign species identifications and exclude non-bat recordings. Manual verification was only perfomed in 2024 and 2025.
+
+Full-spectrum recordings from the 2025 sampling period were processed using two automatic classifiers: Kaleidoscope's Bats of North America 5.4.0 classifier and Sonobat 3.0's Northwestern British Columbia classifier. Based on documented species ranges and prior detection data [@olsonBat], manual identification efforts focused on seven species: Big Brown Bats (*Eptesicus fuscus*), Eastern Red Bats (*Lasiurus borealis*), Silver-haired Bats (*Lasionycteris noctivagans*), Hoary Bat (*Lasiurus cinereus*), Little Brown Bats (*Myotis lucifugus*), Long-legged Myotis (*Myotis volans*) and Long-eared Myotis (*Myotis evotis*).
+
+The analysis workflow followed processing standards established by the North American Bat Monitoring Program (NABat) [@reichert2018Guide]. Only recordings assigned a species classification by either Kaleidoscope or Sonobat were selected for manual verification. For stationary acoustic monitoring, recordings were manually vetted until at least one recording per species per site per night was confidently identified. For mobile transects, all recordings with automated species classifications were manually vetted. Species identifications were validated against reference call parameters described by @slough2022New, @solick2022Bat, and @szewczak2018Acoustic, adhering to NABat manual vetting standards [@reichert2018Guide].
+
+## *Statistical Trends*
+
+For the trends estimates only autoID results were included unless the manual verification results indicated that what was tagged as a bat was actually noise. We only included the autoID results for the trends to keep it consistent, since looking at the manually verified results for only the last two years would have made it difficult to interpret the results across the years.
+
+### *Data processing*
 
 Species presence and nightly activity were calculated from a site-night-species table constructed for all sampled nights. Sampling effort was defined as each unique site-night with acoustic recordings. Species codes were standardized across data sources prior to analysis. Weather covariates were summarized for each sampling night and included mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night and included moon illumination, and an indicator of moon position. Mean nightly passes included all recordings with species or couplet labels, with couplets split and counted for both species. For trend analyses, MYLU, MYSE, and MYVO were pooled into a single Myotis group (40KMYO) - because we know that there is high degree of error in the autoID for these species. That being said most of the reocrdings are likely to be MYLU.
 
-## *Statistical analysis*
+### *Statistical analysis*
 
 Statistical trend analyses were conducted for EPFU, LABO, LACI, LANO, and 40KMYO. Models were fit to nightly detection counts using negative binomial generalized linear mixed models (GLMMs) with a log link. Sites were included as a random intercept. Candidate model structures included year, Julian date, quadratic Julian date, and species-specific covariates. Trend analyses are presented only for species confirmed to be present at the sites through manual verification and for which models fully converged.
 
