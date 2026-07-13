@@ -2,16 +2,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.8.25">
+<meta name="generator" content="quarto-1.9.38">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 <meta name="author" content="Camila Hurtado">
 <meta name="author" content="Martin Hinojosa">
-<meta name="dcterms.date" content="2026-04-09">
+<meta name="dcterms.date" content="2026-07-13">
 
 <title>Banff National Park Activity Trends – Banff National Park - NABat Trend Results 2020-2025</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -27,7 +30,6 @@ ul.task-list li input[type="checkbox"] {
 div.csl-bib-body { }
 div.csl-entry {
   clear: both;
-  margin-bottom: 0em;
 }
 .hanging-indent div.csl-entry {
   margin-left:2em;
@@ -54,15 +56,14 @@ div.csl-indent {
 <meta name="quarto:offset" content="./">
 <script src="site_libs/quarto-html/quarto.js" type="module"></script>
 <script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="site_libs/quarto-html/anchor.min.js"></script>
 <link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-7b89279ff1a6dce999919e0e67d4d9ec.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-15634bcf2e68342d4ad2dfa704d543f6.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-a952cfabfddfbc7f606920241ed1a2ba.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="site_libs/bootstrap/bootstrap-d5545bcdbf446f4c5a0339e169ffba85.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -107,6 +108,10 @@ div.csl-indent {
 background: #1d4566;
       }
 </style>
+<link href="site_libs/tabwid-1.1.3/tabwid.css" rel="stylesheet">
+
+<script src="site_libs/tabwid-1.1.3/tabwid.js"></script>
+
 
 
 <link rel="stylesheet" href="styles.css">
@@ -152,7 +157,7 @@ background: #1d4566;
       <div>
       <div class="quarto-title-meta-heading">Published</div>
       <div class="quarto-title-meta-contents">
-        <p class="date">April 9, 2026</p>
+        <p class="date">July 13, 2026</p>
       </div>
     </div>
     
@@ -170,7 +175,10 @@ background: #1d4566;
   <li><a href="#land-acknowledgement" id="toc-land-acknowledgement" class="nav-link active" data-scroll-target="#land-acknowledgement">Land Acknowledgement</a></li>
   <li><a href="#introduction" id="toc-introduction" class="nav-link" data-scroll-target="#introduction">Introduction</a>
   <ul class="collapse">
-  <li><a href="#overview-of-nabat-and-the-nnw-bat-hub" id="toc-overview-of-nabat-and-the-nnw-bat-hub" class="nav-link" data-scroll-target="#overview-of-nabat-and-the-nnw-bat-hub">Overview of NABat and the NNW Bat Hub</a></li>
+  <li><a href="#overview-of-nabat-and-the-nnw-bat-hub" id="toc-overview-of-nabat-and-the-nnw-bat-hub" class="nav-link" data-scroll-target="#overview-of-nabat-and-the-nnw-bat-hub">Overview of NABat and the NNW Bat Hub</a>
+  <ul class="collapse">
+  <li><a href="#nabat-monitoring-in-banff-national-park" id="toc-nabat-monitoring-in-banff-national-park" class="nav-link" data-scroll-target="#nabat-monitoring-in-banff-national-park">NABat Monitoring in Banff National Park</a></li>
+  </ul></li>
   <li><a href="#threats-to-bat-populations-in-alberta" id="toc-threats-to-bat-populations-in-alberta" class="nav-link" data-scroll-target="#threats-to-bat-populations-in-alberta">Threats to bat populations in Alberta</a>
   <ul class="collapse">
   <li><a href="#white-nose-syndrome" id="toc-white-nose-syndrome" class="nav-link" data-scroll-target="#white-nose-syndrome">White-Nose Syndrome</a></li>
@@ -180,18 +188,26 @@ background: #1d4566;
   </ul></li>
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a>
   <ul class="collapse">
-  <li><a href="#manual-verification-of-2025-data" id="toc-manual-verification-of-2025-data" class="nav-link" data-scroll-target="#manual-verification-of-2025-data"><em>Manual Verification of 2025 Data</em></a></li>
+  <li><a href="#deployments" id="toc-deployments" class="nav-link" data-scroll-target="#deployments"><em>2025 Deployments</em></a>
+  <ul class="collapse">
+  <li><a href="#stationary-surveys" id="toc-stationary-surveys" class="nav-link" data-scroll-target="#stationary-surveys">Stationary Surveys</a></li>
+  <li><a href="#transect-surveys" id="toc-transect-surveys" class="nav-link" data-scroll-target="#transect-surveys">Transect Surveys</a></li>
+  </ul></li>
+  <li><a href="#manual-verification" id="toc-manual-verification" class="nav-link" data-scroll-target="#manual-verification"><em>Manual Verification</em></a></li>
+  <li><a href="#statistical-trends" id="toc-statistical-trends" class="nav-link" data-scroll-target="#statistical-trends"><em>Statistical Trends</em></a>
+  <ul class="collapse">
   <li><a href="#data-processing" id="toc-data-processing" class="nav-link" data-scroll-target="#data-processing"><em>Data processing</em></a></li>
   <li><a href="#statistical-analysis" id="toc-statistical-analysis" class="nav-link" data-scroll-target="#statistical-analysis"><em>Statistical analysis</em></a></li>
   </ul></li>
+  </ul></li>
   <li><a href="#results" id="toc-results" class="nav-link" data-scroll-target="#results">Results</a>
   <ul class="collapse">
-  <li><a href="#interactive-map" id="toc-interactive-map" class="nav-link" data-scroll-target="#interactive-map"><em>Interactive map</em></a></li>
   <li><a href="#species-detected-and-mean-nightly-activity" id="toc-species-detected-and-mean-nightly-activity" class="nav-link" data-scroll-target="#species-detected-and-mean-nightly-activity"><em>Species detected and mean nightly activity</em></a></li>
   <li><a href="#species-trends" id="toc-species-trends" class="nav-link" data-scroll-target="#species-trends"><em>Species Trends</em></a></li>
   </ul></li>
   <li><a href="#discussion" id="toc-discussion" class="nav-link" data-scroll-target="#discussion">Discussion</a></li>
   <li><a href="#acknowledgements" id="toc-acknowledgements" class="nav-link" data-scroll-target="#acknowledgements">Acknowledgements</a></li>
+  <li><a href="#appendix-a" id="toc-appendix-a" class="nav-link" data-scroll-target="#appendix-a">Appendix A</a></li>
   <li><a href="#literature-cited" id="toc-literature-cited" class="nav-link" data-scroll-target="#literature-cited">Literature Cited</a></li>
   </ul>
 <div class="quarto-alternate-formats"><h2>Other Formats</h2><ul><li><a href="Summary-2025.pdf"><i class="bi bi-file-pdf"></i>PDF</a></li></ul></div></nav>
@@ -210,21 +226,26 @@ background: #1d4566;
 <div style="page-break-after: always;"></div>
 <section id="land-acknowledgement" class="level1">
 <h1>Land Acknowledgement</h1>
-<p>Biodiversity Pathways respectfully acknowledges that our work takes place on Treaty 8 and Douglas Treaties Territories as well as the traditional and unceded territories of First Nations and Métis Peoples across all regions of British Columbia, whose histories, languages, and cultures are deeply connected to the biodiversity we monitor. We acknowledge the traditional teachings of the lands that we work on, and that reciprocal, meaningful, and respectful relationships with Indigenous peoples make our work possible. We are deeply grateful for their stewardship of these lands, and we are committed to supporting Indigenous-led monitoring programs, while learning Indigenous ways of knowing, being, and doing.</p>
+<p>Biodiversity Pathways respectfully acknowledges that our work takes place on the territories of Treaties 6, 7, 8, and the Métis homeland, traditional and ancestral lands of First Nations and Métis Peoples, whose histories, languages, and cultures are directly linked to the biodiversity that we monitor.</p>
+<p>We acknowledge the traditional teachings of the lands that we work on, and that reciprocal, meaningful, and respectful relationships with Indigenous peoples make our work possible. We are deeply grateful for their stewardship of these lands, and we are committed to supporting Indigenous-led monitoring programs, while learning Indigenous ways of knowing, being, and doing.</p>
 </section>
 <section id="introduction" class="level1">
 <h1>Introduction</h1>
 <section id="overview-of-nabat-and-the-nnw-bat-hub" class="level2">
 <h2 class="anchored" data-anchor-id="overview-of-nabat-and-the-nnw-bat-hub">Overview of NABat and the NNW Bat Hub</h2>
-<p>North American Bat Monitoring Program (NABat) is a large-scale coordinated effort to monitor bat species to address gaps in knowledge and lack of long-term studies across North America <span class="citation" data-cites="loeb2015Plan">(<a href="#ref-loeb2015Plan" role="doc-biblioref">Loeb et al. 2015</a>)</span>.The program is administered by the US Geological Survey (USGS) and implemented by the North by Northwest Bat (NNW) Hub in British Columbia, Alberta and S.E Alaska.</p>
-<p>NNW Bat Hub was established in 2024 with collaboration from Government of British Columbia, Government of Alberta, and Government of Alaska. The hub was formed by combining the previous Alberta Hub and the BC and southeast Alaska Hub. The implementation of the program within Alberta has key support from Parks Canada, government of Alberta staff, other wildlife biologists, Indigenous Nations, community members and naturalists across the province.</p>
+<p>North American Bat Monitoring Program (NABat) is a large-scale coordinated effort to monitor bat species to address gaps in knowledge and lack of long-term studies across North America <span class="citation" data-cites="loeb2015Plan">(<a href="#ref-loeb2015Plan" role="doc-biblioref">Loeb et al. 2015</a>)</span>.The program is administered by the US Geological Survey (USGS) and implemented by the North by Northwest Bat (NNW) Hub in Alberta, British Columbia, and S.E Alaska.</p>
+<p>NNW Bat Hub was established in 2024 with collaboration from Government of Alberta, Government of British Columbia, and Government of Alaska. The hub was formed by combining the previous Alberta Hub and the BC and southeast Alaska Hub. The implementation of the program within Alberta has key support from Parks Canada, government of Alberta staff, other wildlife biologists, Indigenous Nations, community members and naturalists across the province.</p>
+<section id="nabat-monitoring-in-banff-national-park" class="level3">
+<h3 class="anchored" data-anchor-id="nabat-monitoring-in-banff-national-park">NABat Monitoring in Banff National Park</h3>
+<p>Banff National Park has been conducting NABat monitoring within one NABat grid cell (Grid Cell ID: 148842) since 2020. Monitoring efforts include three long-term stationary sites and a driving transect. In addition, 10 supplementary sites were surveyed in 2022 and 2023 to develop a bat species inventory for the park. All data from 2020 to 2023 were processed using automated identification software. In 2024 and 2025 a subset of the data were also manually verified following the established NABat protocols (<span class="citation" data-cites="reichert2018">(<a href="#ref-reichert2018" role="doc-biblioref">Reichert et al. 2018a</a>)</span>).</p>
+</section>
 </section>
 <section id="threats-to-bat-populations-in-alberta" class="level2">
 <h2 class="anchored" data-anchor-id="threats-to-bat-populations-in-alberta">Threats to bat populations in Alberta</h2>
 <p>Bat populations in Alberta face a wide range of threats including forestry practices, anthropogenic expansion, and climate change among others. Of these threats, White-Nose Syndrome and wind energy development have emerged as two of the highest-priority concerns.</p>
 <section id="white-nose-syndrome" class="level3">
 <h3 class="anchored" data-anchor-id="white-nose-syndrome">White-Nose Syndrome</h3>
-<p>White-nose Syndrome (WNS) is a deadly fungal disease caused by the fungus <em>Pseudogymnoascus destructans</em> (<em>Pd</em>) that affects hibernating bats. As of 2026, WNS has been confirmed in nine Canadian provinces including Alberta, and <em>Pd</em> has been detected within British Columbia at two locations ( <a href="#fig-WNS" class="quarto-xref">Figure&nbsp;1</a>: <span class="citation" data-cites="cwhc-rcsf2024Canadian">(<a href="#ref-cwhc-rcsf2024Canadian" role="doc-biblioref"><strong>cwhc-rcsf2024Canadian?</strong></a>)</span>). Continued monitoring of populations in AB is critical as <em>Pd</em> and WNS continue to spread throughout the province.</p>
+<p>White-Nose Syndrome (WNS) is a deadly fungal disease caused by the fungus <em>Pseudogymnoascus destructans</em> (<em>Pd</em>) that affects hibernating bats. As of 2026, WNS has been confirmed in nine Canadian provinces including Alberta ( <a href="#fig-WNS" class="quarto-xref">Figure&nbsp;1</a>: <span class="citation" data-cites="cwhc-rcsf2024Canadian">CWHC-RCSF (<a href="#ref-cwhc-rcsf2024Canadian" role="doc-biblioref">2024</a>)</span>). Since Pd was first confirmed in AB in 2022, the fungus and the ensuing disease have spread through the province at a rapid pase and has now been detected at the provinces largest known hibernacula, Cadamun cave (Wilkinson, pers. comm.) Continued monitoring of populations in AB is critical as <em>Pd</em> and WNS continue to spread throughout the province.</p>
 <div id="fig-WNS" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-WNS-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -238,14 +259,14 @@ Figure&nbsp;1: White-nose syndrome (WNS) and Pseudogymnoascus destructans (Pd) o
 </section>
 <section id="wind-energy-development" class="level3">
 <h3 class="anchored" data-anchor-id="wind-energy-development">Wind Energy Development</h3>
-<p>Wind energy farms has been linked to high mortality rates across all bat species in Canada, with long distance migratory species accounting for 73% of recorded fatalities <span class="citation" data-cites="zimmerling2016Bat">(<a href="#ref-zimmerling2016Bat" role="doc-biblioref"><strong>zimmerling2016Bat?</strong></a>)</span>. In British Columbia alone, one estimate predicts an annual mortality rate of 680 bats per wind turbine <span class="citation" data-cites="zimmerling2016Bat">(<a href="#ref-zimmerling2016Bat" role="doc-biblioref"><strong>zimmerling2016Bat?</strong></a>)</span>. There are currently close to 300 turbines active in the province across 10 different projects with the most turbines found in the Peace region (<a href="#fig-turbines" class="quarto-xref">Figure&nbsp;2</a>). In late 2024, B.C announced nine new wind projects which would require the installation of over 300 new wind turbines across the province <span class="citation" data-cites="ministryofenergyandclimatesolutions2024BC">(<a href="#ref-ministryofenergyandclimatesolutions2024BC" role="doc-biblioref"><strong>ministryofenergyandclimatesolutions2024BC?</strong></a>)</span>. As of 2023, COSEWIC designated all three of B.C.’s long distance migratory species as endangered due in part to fatalities at wind turbine facilities <span class="citation" data-cites="committeeonthestatusofendangeredwildlifeincanada2023Hoary">(<a href="#ref-committeeonthestatusofendangeredwildlifeincanada2023Hoary" role="doc-biblioref"><strong>committeeonthestatusofendangeredwildlifeincanada2023Hoary?</strong></a>)</span>.</p>
+<p>Wind energy farms have been linked to high mortality rates across all bat species in Canada, with long distance migratory species accounting for 73% of recorded fatalities <span class="citation" data-cites="zimmerling2016Bat">(<a href="#ref-zimmerling2016Bat" role="doc-biblioref">Zimmerling and Francis 2016</a>)</span>. In Alberta alone, one estimate predicts an annual mortality rate 10.9 bats per turbine <span class="citation" data-cites="zimmerling2016Bat">(<a href="#ref-zimmerling2016Bat" role="doc-biblioref">Zimmerling and Francis 2016</a>)</span>. There are currently 1,778 turbines active in the province across 49 different projects with the most turbines found in the grassland ecosystem (<span class="citation" data-cites="NRCan2025Wind"><span>“Canadian Wind Turbine Database”</span> (<a href="#ref-NRCan2025Wind" role="doc-biblioref">2025</a>)</span> ; <a href="#fig-turbines" class="quarto-xref">Figure&nbsp;2</a>). Using <span class="citation" data-cites="zimmerling2016Bat">Zimmerling and Francis (<a href="#ref-zimmerling2016Bat" role="doc-biblioref">2016</a>)</span> estimate, Alberta is estimated to be loosing 19,380 bats per year to wind turbine collisions. As of 2023, COSEWIC designated all three of Alberta’s long distance migratory species as endangered due in part to fatalities at wind turbine facilities <span class="citation" data-cites="committeeonthestatusofendangeredwildlifeincanada2023Hoary">(<a href="#ref-committeeonthestatusofendangeredwildlifeincanada2023Hoary" role="doc-biblioref">Status of Endangered Wildlife in Canada 2023</a>)</span>.</p>
 <div id="fig-turbines" class="quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-fig figure">
 <div aria-describedby="fig-turbines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
 <img src="Figures/AB-Wind.JPG" class="img-fluid figure-img">
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-turbines-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure&nbsp;2: Current wind turbines in Alberta based on the Canadian Wind Turbine Database (Source: https://search.open.canada.ca/openmap/79fdad93-9025-49ad-ba16-c26d718cc070)
+Figure&nbsp;2: Current wind turbines in Alberta based on the Canadian Wind Turbine Database (Source: <span class="citation" data-cites="NRCan2025Wind"><span>“Canadian Wind Turbine Database”</span> (<a href="#ref-NRCan2025Wind" role="doc-biblioref">2025</a>)</span>)
 </figcaption>
 </figure>
 </div>
@@ -255,7 +276,7 @@ Figure&nbsp;2: Current wind turbines in Alberta based on the Canadian Wind Turbi
 <h2 class="anchored" data-anchor-id="acoustic-monitoring-of-bats">Acoustic Monitoring of Bats</h2>
 <p>Acoustic recording is a cost-effective method for monitoring bat populations across large geographic and temporal scales. However, several limitations affect the conclusions that can be drawn from these data:</p>
 <ol type="1">
-<li><p><strong>Imperfect species identification</strong> — Unlike birds, bats rely on echolocation rather than song, and species with similar ecology and physiology often produce overlapping calls. While detectors are deployed to maximize recordings of diagnostic Search Phase calls, species identifiability will always vary depending on the local assemblage.</p></li>
+<li><p><strong>Imperfect species identification</strong> — Bats rely on echolocation for hunting and moving around, and species with similar ecology and physiology often produce overlapping calls. While detectors are deployed to maximize recordings of diagnostic Search Phase calls, species identifiability will always vary depending on the local species assemblage.</p></li>
 <li><p><strong>Variable detectability</strong> — Bat species are not equally detectable acoustically. Larger, wide-ranging species produce louder calls that travel farther, while smaller species with quieter calls or specialized habitat use are less reliably recorded. As a result, trend estimates cannot be produced for all species using acoustic methods alone.</p></li>
 <li><p><strong>Data variability</strong> — Many factors influence recording quality and bat activity, including wind speed, humidity, and local habitat. Additionally, stationary detectors cannot account for individual recapture, meaning acoustic data can only inform relative activity and occupancy.</p></li>
 <li><p><strong>Processing limitations</strong> — Auto-ID software enables efficient processing of large datasets but has known high misclassification rates for bats, making manual verification necessary to ensure accurate results.</p></li>
@@ -264,41 +285,697 @@ Figure&nbsp;2: Current wind turbines in Alberta based on the Canadian Wind Turbi
 </section>
 <section id="methods" class="level1">
 <h1>Methods</h1>
-<p>Banff National Park has monitored one NABat grid cell using three sites and has collected acoustic data from 2020 to 2025. Recordings were processed using an automated classifier (Kaleidoscope’s Bats of North America 5.4.0 classifier) to assign species identifications and exclude non-bat recordings.</p>
-<p>Manual verification was only perfomed in 2024 and 2025. For the trends estimates only autoID results were included unless the manual verification results indicated that what was tagged as a bat was actually noise. We only included the autoID results for the trends to keep it consistent, since looking at the manually verified results for only the last two years would have made it difficult to interpret the results across the years.</p>
-<section id="manual-verification-of-2025-data" class="level2">
-<h2 class="anchored" data-anchor-id="manual-verification-of-2025-data"><em>Manual Verification of 2025 Data</em></h2>
+<section id="deployments" class="level2">
+<h2 class="anchored" data-anchor-id="deployments"><em>2025 Deployments</em></h2>
+<section id="stationary-surveys" class="level3">
+<h3 class="anchored" data-anchor-id="stationary-surveys">Stationary Surveys</h3>
+<p>Banff biologists deployed three stationary bat detectors in strategically selected bat habitat in 3 distinct quadrants within the NABat grid cell (<strong>?@fig-sites</strong>). Stationary sites were deployed from June 24 until July 3, 2025. Deployment set up followed the standards set by <span class="citation" data-cites="loeb2015Plan">Loeb et al. (<a href="#ref-loeb2015Plan" role="doc-biblioref">2015</a>)</span>.</p>
 </section>
-<section id="data-processing" class="level2">
-<h2 class="anchored" data-anchor-id="data-processing"><em>Data processing</em></h2>
-<p>Species presence and nightly activity were calculated from a site-night-species table constructed for all sampled nights. Sampling effort was defined as each unique site-night with acoustic recordings. Species codes were standardized across data sources prior to analysis. Weather covariates were summarized for each sampling night and included mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night and included moon illumination, and an indicator of moon position. Mean nightly passes included all recordings with species or couplet labels, with couplets split and counted for both species. For trend analyses, MYLU, MYSE, and MYVO were pooled into a single Myotis group (40KMYO) - because we know that there is high degree of error in the autoID for these species. That being said most of the reocrdings are likely to be MYLU.</p>
+<section id="transect-surveys" class="level3">
+<h3 class="anchored" data-anchor-id="transect-surveys">Transect Surveys</h3>
+<p>The driving transect protocol closely follows that established by <span class="citation" data-cites="loeb2015Plan">Loeb et al. (<a href="#ref-loeb2015Plan" role="doc-biblioref">2015</a>)</span>. Two replicates of a mobile transect are driven at 30 – 35km/h with a bat detector on the roof to record bats along the road. Transects are conducted on the nights of June 24 and July 1 2025 ( <strong>?@fig-sites</strong>).</p>
 </section>
-<section id="statistical-analysis" class="level2">
-<h2 class="anchored" data-anchor-id="statistical-analysis"><em>Statistical analysis</em></h2>
-<p>Statistical trend analyses were conducted for EPFU, LABO, LACI, LANO, and 40KMYO. Models were fit to nightly detection counts using negative binomial generalized linear mixed models (GLMMs) with a log link. Sites were included as a random intercept. Candidate model structures included year, Julian date, quadratic Julian date, and species-specific covariates. Trend analyses are presented only for species confirmed to be present at the sites through manual verification and for which models fully converged.</p>
+</section>
+<section id="manual-verification" class="level2">
+<h2 class="anchored" data-anchor-id="manual-verification"><em>Manual Verification</em></h2>
+<p>Recordings from years previous to 2024 were processed using an automated classifier (Kaleidoscope’s Bats of North America 5.4.0 classifier) to assign species identifications and exclude non-bat recordings.</p>
+<p>Full-spectrum recordings from the 2024 and 2025 sampling period were processed using two automatic classifiers: Kaleidoscope’s Bats of North America 5.4.0 classifier and Sonobat 3.0’s Northwestern British Columbia classifier. Based on documented species ranges and prior detection data <span class="citation" data-cites="olsonBat">(<a href="#ref-olsonBat" role="doc-biblioref">Olson, n.d.</a>)</span>, manual identification efforts focused on seven species: Big Brown Bats (<em>Eptesicus fuscus</em>), Eastern Red Bats (<em>Lasiurus borealis</em>), Silver-haired Bats (<em>Lasionycteris noctivagans</em>), Hoary Bat (<em>Lasiurus cinereus</em>), Little Brown Bats (<em>Myotis lucifugus</em>), Long-legged Myotis (<em>Myotis volans</em>) and Long-eared Myotis (<em>Myotis evotis</em>).</p>
+<p>The analysis workflow followed processing standards established by the North American Bat Monitoring Program (NABat) <span class="citation" data-cites="reichert2018Guide">(<a href="#ref-reichert2018Guide" role="doc-biblioref">Reichert et al. 2018b</a>)</span>. Only recordings assigned a species classification by either Kaleidoscope or Sonobat were selected for manual verification. For stationary acoustic monitoring, recordings were manually vetted until at least one recording per species per site per night was confidently identified. For mobile transects, all recordings with automated species classifications were manually vetted. Species identifications were validated against reference call parameters described by <span class="citation" data-cites="slough2022New">Slough et al. (<a href="#ref-slough2022New" role="doc-biblioref">2022</a>)</span>, <span class="citation" data-cites="solick2022Bat">Solick (<a href="#ref-solick2022Bat" role="doc-biblioref">2022</a>)</span>, and <span class="citation" data-cites="szewczak2018Acoustic">Szewczak (<a href="#ref-szewczak2018Acoustic" role="doc-biblioref">2018</a>)</span>, adhering to NABat manual vetting standards <span class="citation" data-cites="reichert2018Guide">(<a href="#ref-reichert2018Guide" role="doc-biblioref">Reichert et al. 2018b</a>)</span>.</p>
+<p>All the recordings and results can be found on Widltrax under the Banff National Park Organization, in the project called <a href="https://portal.wildtrax.ca/aru/3026">Bat Community - Long Term Monitoring - NABat - 2020-2025</a>.</p>
+</section>
+<section id="statistical-trends" class="level2">
+<h2 class="anchored" data-anchor-id="statistical-trends"><em>Statistical Trends</em></h2>
+<p>Trends estimates used only autoID results unless the manual verification results indicated a bat recordings was actually noise. This was done to maintain consistency across the 5 years of study, since manual verification only started in 2024.</p>
+<section id="data-processing" class="level3">
+<h3 class="anchored" data-anchor-id="data-processing"><em>Data processing</em></h3>
+<p>Species presence and nightly activity were calculated from a site-night-species table constructed for all sampled nights. Sampling effort was defined as each unique site-night with acoustic recordings. Weather covariates were summarized for each sampling night and included mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night and included moon illumination and an indicator of moon position. Mean nightly passes included all recordings with species or couplet labels, with couplets split and counted toward both species.</p>
+<p>For trend analyses, Little Brown Bat (<em>Myotis lucifugus)</em>, Northern Myotis (<em>M. spetentrionalis</em>), and Long-legged Myotis (<em>M. volans)</em> were pooled into a single Myotis group (40KMYO) due to high similarity in their calls and a correspondingly high potential for autoID misclassification. Nonetheless, most recordings in this group were likely MYLU.</p>
+</section>
+<section id="statistical-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="statistical-analysis"><em>Statistical analysis</em></h3>
+<p>Statistical trend analyses were conducted for Big Brown Bat (<em>Eptesicus fuscus)</em>, Eastern Red Bat (<em>Lasiurus borealis</em>), Hoary Bat (<em>Lasiurus cinereus</em>), Silver-haired Bat (<em>Lasyonicteris noctivagas</em>), and 40KMYO (Myotis grouping). Models were fit to nightly detection counts using negative binomial generalized linear mixed models (GLMMs) with a log link. Sites were included as a random intercept. Candidate model structures included year, Julian date, quadratic Julian date, and species-specific covariates. Trend analyses are presented only for species confirmed to be present at the sites through manual verification and for which models fully converged.</p>
+</section>
 </section>
 </section>
 <section id="results" class="level1">
 <h1>Results</h1>
-<p>Across the 2020–2025 monitoring period, a total of 35,103 bat detections were recorded across the three sites in the Banff NABat grid cell. The Myotis group (40KMYO) had the highest number of detections (29,209; mean = 111.00). This was followed by Hoary Bat (2,009; mean = 7.61), Silver-haired Bat (1,773; mean = 6.72), Big Brown Bat (1,355; mean = 5.13), and Eastern Red Bat (757; mean = 2.87).</p>
-<section id="interactive-map" class="level2">
-<h2 class="anchored" data-anchor-id="interactive-map"><em>Interactive map</em></h2>
-</section>
+<p>Across the 2020-2025 monitoring period, a total of 35,103 bat detections were recorded across the three sites in the Banff NABat grid cell. The Little Brown Bat had the highest number of detections across all years (28829 ; nightly mean = 109.2007576). This was followed by Hoary Bat (2009 ; nightly mean = 7.6098485), and Silver-haired Bat (1773 ; nightly mean = 6.7159091).</p>
 <section id="species-detected-and-mean-nightly-activity" class="level2">
 <h2 class="anchored" data-anchor-id="species-detected-and-mean-nightly-activity"><em>Species detected and mean nightly activity</em></h2>
-<p>Detected species and nightly bat activity varied among years and sites (Table 1). In total, up to eight species were detected, with Big Brown Bat (EPFU), Silver-haired Bat (LANO), Hoary Bat (LACI), and Eastern Red Bat (LABO) detected across most years and sites. Myotis species showed more variable detections: Little Brown Myotis (MYLU) was detected frequently, while Long-legged Myotis (MYEV), Western Long-eared Myotis (MYVO), and Long-eared Myotis (MYSE) were detected less consistently.</p>
-<p>Nightly bat activity varied across quadrants and years. Activity was highest in NE and NW in 2022–2023, while SW remained consistently low. NW showed a pronounced peak in 2024, the highest across all years, whereas activity in 2025 was more uniform among quadrants. Overall, while several species were consistently detected across the study period, both species presence and nightly activity showed strong spatial and temporal variability. Differences in sampling effort among quadrants and years likely contributed to some level to this pattern.</p>
+<p>Detected species and nightly bat activity varied among years and sites (<a href="#tbl-sppmean" class="quarto-xref">Table&nbsp;1</a>). In total, up to eight species were detected, with Big Brown Bat (EPFU), Silver-haired Bat (LANO), Hoary Bat (LACI), and Eastern Red Bat (LABO) detected across most years and sites. Myotis species showed more variable detections: Little Brown Myotis (MYLU) was detected frequently, while Long-legged Myotis (MYEV), Western Long-eared Myotis (MYVO), and Long-eared Myotis (MYSE) were detected less consistently.</p>
+<p>Nightly bat activity varied across quadrants and years. Activity was highest at the Golf Course and Fenlands sites in 2022–2023, while Upper Hotsprings remained consistently low. Fenlands showed a pronounced peak in 2024, the highest across all years, whereas activity in 2025 was more uniform among all sites. Overall, while several species were consistently detected across the study period, both species presence and nightly activity showed strong spatial and temporal variability. Differences in sampling effort among sites and years likely contributed to some level to this pattern.</p>
+<div class="cell">
 <div id="tbl-sppmean" class="cell quarto-float quarto-figure quarto-figure-center anchored">
 <figure class="quarto-float quarto-float-tbl figure">
 <figcaption class="quarto-float-caption-top quarto-float-caption quarto-float-tbl" id="tbl-sppmean-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Table&nbsp;1: Monitoring effort and bat species detections in the Banff (2020–2025). Mean nightly recordings (± SD) represent total bat detections per night summed across species. Species detections indicate presence (X) within each year and quadrant based on combined automated and manually reviewed identifications.
+Table&nbsp;1: Monitoring effort and bat species detections in the Banff (2020–2025). Mean nightly recordings (± SD) represent total bat detections per night summed across species. Species detections indicate presence (X) within each year and quadrant based on combined automated and manually reviewed identifications. 2024 and 2025 are bolded to highlight that these were the only years were manual verification occurred.
 </figcaption>
 <div aria-describedby="tbl-sppmean-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<div>
+<div class="cell-output-display">
+<div id="dryafoopxc" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#dryafoopxc table {
+  font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#dryafoopxc thead, #dryafoopxc tbody, #dryafoopxc tfoot, #dryafoopxc tr, #dryafoopxc td, #dryafoopxc th {
+  border-style: none;
+}
+
+#dryafoopxc p {
+  margin: 0;
+  padding: 0;
+}
+
+#dryafoopxc .gt_table {
+  display: table;
+  border-collapse: collapse;
+  line-height: normal;
+  margin-left: auto;
+  margin-right: auto;
+  color: #333333;
+  font-size: 15px;
+  font-weight: normal;
+  font-style: normal;
+  background-color: #FFFFFF;
+  width: auto;
+  border-top-style: hidden;
+  border-top-width: 2px;
+  border-top-color: #A8A8A8;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  border-bottom-style: hidden;
+  border-bottom-width: 2px;
+  border-bottom-color: #A8A8A8;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_caption {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+#dryafoopxc .gt_title {
+  color: #333333;
+  font-size: 125%;
+  font-weight: initial;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-color: #FFFFFF;
+  border-bottom-width: 0;
+}
+
+#dryafoopxc .gt_subtitle {
+  color: #333333;
+  font-size: 85%;
+  font-weight: initial;
+  padding-top: 3px;
+  padding-bottom: 5px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-color: #FFFFFF;
+  border-top-width: 0;
+}
+
+#dryafoopxc .gt_heading {
+  background-color: #FFFFFF;
+  text-align: center;
+  border-bottom-color: #FFFFFF;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_bottom_border {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_col_headings {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_col_heading {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 6px;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow-x: hidden;
+}
+
+#dryafoopxc .gt_column_spanner_outer {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: normal;
+  text-transform: inherit;
+  padding-top: 0;
+  padding-bottom: 0;
+  padding-left: 4px;
+  padding-right: 4px;
+}
+
+#dryafoopxc .gt_column_spanner_outer:first-child {
+  padding-left: 0;
+}
+
+#dryafoopxc .gt_column_spanner_outer:last-child {
+  padding-right: 0;
+}
+
+#dryafoopxc .gt_column_spanner {
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: bottom;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  overflow-x: hidden;
+  display: inline-block;
+  width: 100%;
+}
+
+#dryafoopxc .gt_spanner_row {
+  border-bottom-style: hidden;
+}
+
+#dryafoopxc .gt_group_heading {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  text-align: left;
+}
+
+#dryafoopxc .gt_empty_group_heading {
+  padding: 0.5px;
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  vertical-align: middle;
+}
+
+#dryafoopxc .gt_from_md > :first-child {
+  margin-top: 0;
+}
+
+#dryafoopxc .gt_from_md > :last-child {
+  margin-bottom: 0;
+}
+
+#dryafoopxc .gt_row {
+  padding-top: 3px;
+  padding-bottom: 3px;
+  padding-left: 5px;
+  padding-right: 5px;
+  margin: 10px;
+  border-top-style: solid;
+  border-top-width: 1px;
+  border-top-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 1px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 1px;
+  border-right-color: #D3D3D3;
+  vertical-align: middle;
+  overflow-x: hidden;
+}
+
+#dryafoopxc .gt_stub {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dryafoopxc .gt_stub_row_group {
+  color: #333333;
+  background-color: #FFFFFF;
+  font-size: 100%;
+  font-weight: initial;
+  text-transform: inherit;
+  border-right-style: solid;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+  padding-left: 5px;
+  padding-right: 5px;
+  vertical-align: top;
+}
+
+#dryafoopxc .gt_row_group_first td {
+  border-top-width: 2px;
+}
+
+#dryafoopxc .gt_row_group_first th {
+  border-top-width: 2px;
+}
+
+#dryafoopxc .gt_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dryafoopxc .gt_first_summary_row {
+  border-top-style: solid;
+  border-top-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_first_summary_row.thick {
+  border-top-width: 2px;
+}
+
+#dryafoopxc .gt_last_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_grand_summary_row {
+  color: #333333;
+  background-color: #FFFFFF;
+  text-transform: inherit;
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dryafoopxc .gt_first_grand_summary_row {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-top-style: double;
+  border-top-width: 6px;
+  border-top-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_last_grand_summary_row_top {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  padding-left: 5px;
+  padding-right: 5px;
+  border-bottom-style: double;
+  border-bottom-width: 6px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_striped {
+  background-color: #FAFAFA;
+}
+
+#dryafoopxc .gt_table_body {
+  border-top-style: solid;
+  border-top-width: 2px;
+  border-top-color: #D3D3D3;
+  border-bottom-style: solid;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_footnotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_footnote {
+  margin: 0px;
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dryafoopxc .gt_sourcenotes {
+  color: #333333;
+  background-color: #FFFFFF;
+  border-bottom-style: none;
+  border-bottom-width: 2px;
+  border-bottom-color: #D3D3D3;
+  border-left-style: none;
+  border-left-width: 2px;
+  border-left-color: #D3D3D3;
+  border-right-style: none;
+  border-right-width: 2px;
+  border-right-color: #D3D3D3;
+}
+
+#dryafoopxc .gt_sourcenote {
+  font-size: 90%;
+  padding-top: 4px;
+  padding-bottom: 4px;
+  padding-left: 5px;
+  padding-right: 5px;
+}
+
+#dryafoopxc .gt_left {
+  text-align: left;
+}
+
+#dryafoopxc .gt_center {
+  text-align: center;
+}
+
+#dryafoopxc .gt_right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+#dryafoopxc .gt_font_normal {
+  font-weight: normal;
+}
+
+#dryafoopxc .gt_font_bold {
+  font-weight: bold;
+}
+
+#dryafoopxc .gt_font_italic {
+  font-style: italic;
+}
+
+#dryafoopxc .gt_super {
+  font-size: 65%;
+}
+
+#dryafoopxc .gt_footnote_marks {
+  font-size: 75%;
+  vertical-align: 0.4em;
+  position: initial;
+}
+
+#dryafoopxc .gt_asterisk {
+  font-size: 100%;
+  vertical-align: 0;
+}
+
+#dryafoopxc .gt_indent_1 {
+  text-indent: 5px;
+}
+
+#dryafoopxc .gt_indent_2 {
+  text-indent: 10px;
+}
+
+#dryafoopxc .gt_indent_3 {
+  text-indent: 15px;
+}
+
+#dryafoopxc .gt_indent_4 {
+  text-indent: 20px;
+}
+
+#dryafoopxc .gt_indent_5 {
+  text-indent: 25px;
+}
+
+#dryafoopxc .katex-display {
+  display: inline-flex !important;
+  margin-bottom: 0.75em !important;
+}
+
+#dryafoopxc div.Reactable > div.rt-table > div.rt-thead > div.rt-tr.rt-tr-group-header > div.rt-th-group:after {
+  height: 0px !important;
+}
+</style>
+
+<table class="gt_table cell caption-top table table-sm table-striped small" data-quarto-bootstrap="false">
+<thead>
+<tr class="gt_col_headings header">
+<th id="Year" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">Year</th>
+<th id="Site" class="gt_col_heading gt_columns_bottom_border gt_left" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">Site</th>
+<th id="Nights" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">Nights</th>
+<th id="mean_sd" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">Mean Nightly Bat Recordings ± SD</th>
+<th id="EPFU" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">EPFU</th>
+<th id="LABO" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">LABO</th>
+<th id="LACI" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">LACI</th>
+<th id="LANO" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">LANO</th>
+<th id="MYEV" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">MYEV</th>
+<th id="MYLU" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">MYLU</th>
+<th id="MYSE" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">MYSE</th>
+<th id="MYVO" class="gt_col_heading gt_columns_bottom_border gt_center" data-quarto-table-cell-role="th" style="font-weight: bold; background-color: #F2F2F2" scope="col">MYVO</th>
+</tr>
+</thead>
+<tbody class="gt_table_body">
+<tr class="odd">
+<td class="gt_row gt_left" headers="Year" style="font-weight: bold">2020</td>
+<td class="gt_row gt_left" headers="Site">Fenlands</td>
+<td class="gt_row gt_center" headers="Nights">20</td>
+<td class="gt_row gt_center" headers="mean_sd">5.4 ± 9.5</td>
+<td class="gt_row gt_center" headers="EPFU">X</td>
+<td class="gt_row gt_center" headers="LABO"></td>
+<td class="gt_row gt_center" headers="LACI">X</td>
+<td class="gt_row gt_center" headers="LANO"></td>
+<td class="gt_row gt_center" headers="MYEV"></td>
+<td class="gt_row gt_center" headers="MYLU"></td>
+<td class="gt_row gt_center" headers="MYSE"></td>
+<td class="gt_row gt_center" headers="MYVO"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Year" style="font-weight: bold">2022</td>
+<td class="gt_row gt_left gt_striped" headers="Site">Fenlands</td>
+<td class="gt_row gt_center gt_striped" headers="Nights">130</td>
+<td class="gt_row gt_center gt_striped" headers="mean_sd">159.7 ± 235.3</td>
+<td class="gt_row gt_center gt_striped" headers="EPFU">X</td>
+<td class="gt_row gt_center gt_striped" headers="LABO">X</td>
+<td class="gt_row gt_center gt_striped" headers="LACI">X</td>
+<td class="gt_row gt_center gt_striped" headers="LANO">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYEV"></td>
+<td class="gt_row gt_center gt_striped" headers="MYLU">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYSE">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYVO"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Year" style="font-weight: bold">2022</td>
+<td class="gt_row gt_left" headers="Site">Golf Course</td>
+<td class="gt_row gt_center" headers="Nights">14</td>
+<td class="gt_row gt_center" headers="mean_sd">171.9 ± 90.3</td>
+<td class="gt_row gt_center" headers="EPFU">X</td>
+<td class="gt_row gt_center" headers="LABO">X</td>
+<td class="gt_row gt_center" headers="LACI">X</td>
+<td class="gt_row gt_center" headers="LANO">X</td>
+<td class="gt_row gt_center" headers="MYEV"></td>
+<td class="gt_row gt_center" headers="MYLU">X</td>
+<td class="gt_row gt_center" headers="MYSE"></td>
+<td class="gt_row gt_center" headers="MYVO"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Year" style="font-weight: bold">2022</td>
+<td class="gt_row gt_left gt_striped" headers="Site">Upper Hotsprings</td>
+<td class="gt_row gt_center gt_striped" headers="Nights">12</td>
+<td class="gt_row gt_center gt_striped" headers="mean_sd">1.7 ± 1.3</td>
+<td class="gt_row gt_center gt_striped" headers="EPFU">X</td>
+<td class="gt_row gt_center gt_striped" headers="LABO"></td>
+<td class="gt_row gt_center gt_striped" headers="LACI">X</td>
+<td class="gt_row gt_center gt_striped" headers="LANO">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYEV"></td>
+<td class="gt_row gt_center gt_striped" headers="MYLU">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYSE"></td>
+<td class="gt_row gt_center gt_striped" headers="MYVO"></td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Year" style="font-weight: bold">2023</td>
+<td class="gt_row gt_left" headers="Site">Fenlands</td>
+<td class="gt_row gt_center" headers="Nights">2</td>
+<td class="gt_row gt_center" headers="mean_sd">3.0 ± 4.2</td>
+<td class="gt_row gt_center" headers="EPFU">X</td>
+<td class="gt_row gt_center" headers="LABO"></td>
+<td class="gt_row gt_center" headers="LACI"></td>
+<td class="gt_row gt_center" headers="LANO"></td>
+<td class="gt_row gt_center" headers="MYEV"></td>
+<td class="gt_row gt_center" headers="MYLU">X</td>
+<td class="gt_row gt_center" headers="MYSE"></td>
+<td class="gt_row gt_center" headers="MYVO"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Year" style="font-weight: bold">2023</td>
+<td class="gt_row gt_left gt_striped" headers="Site">Golf Course</td>
+<td class="gt_row gt_center gt_striped" headers="Nights">15</td>
+<td class="gt_row gt_center gt_striped" headers="mean_sd">180.6 ± 102.5</td>
+<td class="gt_row gt_center gt_striped" headers="EPFU">X</td>
+<td class="gt_row gt_center gt_striped" headers="LABO">X</td>
+<td class="gt_row gt_center gt_striped" headers="LACI">X</td>
+<td class="gt_row gt_center gt_striped" headers="LANO">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYEV">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYLU">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYSE">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYVO">X</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Year" style="font-weight: bold">2023</td>
+<td class="gt_row gt_left" headers="Site">Upper Hotsprings</td>
+<td class="gt_row gt_center" headers="Nights">15</td>
+<td class="gt_row gt_center" headers="mean_sd">3.6 ± 6.8</td>
+<td class="gt_row gt_center" headers="EPFU">X</td>
+<td class="gt_row gt_center" headers="LABO">X</td>
+<td class="gt_row gt_center" headers="LACI">X</td>
+<td class="gt_row gt_center" headers="LANO">X</td>
+<td class="gt_row gt_center" headers="MYEV">X</td>
+<td class="gt_row gt_center" headers="MYLU">X</td>
+<td class="gt_row gt_center" headers="MYSE"></td>
+<td class="gt_row gt_center" headers="MYVO">X</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Year" style="font-weight: bold">2024</td>
+<td class="gt_row gt_left gt_striped" headers="Site" style="font-weight: bold">Fenlands</td>
+<td class="gt_row gt_center gt_striped" headers="Nights" style="font-weight: bold">14</td>
+<td class="gt_row gt_center gt_striped" headers="mean_sd" style="font-weight: bold">620.9 ± 416.7</td>
+<td class="gt_row gt_center gt_striped" headers="EPFU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LABO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LACI" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LANO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYEV" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYLU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYSE" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYVO" style="font-weight: bold">X</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Year" style="font-weight: bold">2024</td>
+<td class="gt_row gt_left" headers="Site" style="font-weight: bold">Upper Hotsprings</td>
+<td class="gt_row gt_center" headers="Nights" style="font-weight: bold">13</td>
+<td class="gt_row gt_center" headers="mean_sd" style="font-weight: bold">3.0 ± 3.4</td>
+<td class="gt_row gt_center" headers="EPFU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="LABO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="LACI" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="LANO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="MYEV" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="MYLU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="MYSE" style="font-weight: bold"></td>
+<td class="gt_row gt_center" headers="MYVO" style="font-weight: bold"></td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Year" style="font-weight: bold">2025</td>
+<td class="gt_row gt_left gt_striped" headers="Site" style="font-weight: bold">Fenlands</td>
+<td class="gt_row gt_center gt_striped" headers="Nights" style="font-weight: bold">10</td>
+<td class="gt_row gt_center gt_striped" headers="mean_sd" style="font-weight: bold">34.6 ± 17.7</td>
+<td class="gt_row gt_center gt_striped" headers="EPFU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LABO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LACI" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LANO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYEV" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYLU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYSE" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYVO" style="font-weight: bold">X</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="Year" style="font-weight: bold">2025</td>
+<td class="gt_row gt_left" headers="Site" style="font-weight: bold">Golf Course</td>
+<td class="gt_row gt_center" headers="Nights" style="font-weight: bold">10</td>
+<td class="gt_row gt_center" headers="mean_sd" style="font-weight: bold">14.4 ± 11.0</td>
+<td class="gt_row gt_center" headers="EPFU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="LABO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="LACI" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="LANO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="MYEV" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="MYLU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="MYSE" style="font-weight: bold">X</td>
+<td class="gt_row gt_center" headers="MYVO" style="font-weight: bold">X</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left gt_striped" headers="Year" style="font-weight: bold">2025</td>
+<td class="gt_row gt_left gt_striped" headers="Site" style="font-weight: bold">Upper Hotsprings</td>
+<td class="gt_row gt_center gt_striped" headers="Nights" style="font-weight: bold">9</td>
+<td class="gt_row gt_center gt_striped" headers="mean_sd" style="font-weight: bold">4.0 ± 3.8</td>
+<td class="gt_row gt_center gt_striped" headers="EPFU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LABO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LACI" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="LANO" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYEV" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYLU" style="font-weight: bold">X</td>
+<td class="gt_row gt_center gt_striped" headers="MYSE" style="font-weight: bold"></td>
+<td class="gt_row gt_center gt_striped" headers="MYVO" style="font-weight: bold"></td>
+</tr>
+</tbody>
+</table>
 
 </div>
 </div>
+</div>
 </figure>
+</div>
 </div>
 </section>
 <section id="species-trends" class="level2">
@@ -325,6 +1002,15 @@ Results must be taken with caution because of small sample size, but overall can
 <h1>Acknowledgements</h1>
 <div style="page-break-after: always;"></div>
 </section>
+<section id="appendix-a" class="level1">
+<h1>Appendix A</h1>
+<p>Species codes and their definitions</p>
+<div class="cell">
+<div class="cell-output-display">
+<div class="tabwid"><style>.cl-5c86e88e{}.cl-5c7aa22c{font-family:'Arial';font-size:11pt;font-weight:bold;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-5c7aa236{font-family:'Arial';font-size:11pt;font-weight:normal;font-style:normal;text-decoration:none;color:rgba(0, 0, 0, 1.00);background-color:transparent;}.cl-5c7f56b4{margin:0;text-align:left;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);padding-bottom:5pt;padding-top:5pt;padding-left:5pt;padding-right:5pt;line-height: 1;background-color:transparent;}.cl-5c7f9188{width:2.816in;background-color:rgba(207, 207, 207, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f9192{width:3.359in;background-color:rgba(207, 207, 207, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f9193{width:1.669in;background-color:rgba(207, 207, 207, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f919c{width:6.187in;background-color:rgba(207, 207, 207, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f91a6{width:2.816in;background-color:rgba(239, 239, 239, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f91a7{width:3.359in;background-color:rgba(239, 239, 239, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f91b0{width:1.669in;background-color:rgba(239, 239, 239, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f91b1{width:6.187in;background-color:rgba(239, 239, 239, 1.00);vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f91b2{width:2.816in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f91ba{width:3.359in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f91bb{width:1.669in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}.cl-5c7f91c4{width:6.187in;background-color:transparent;vertical-align: middle;border-bottom: 0 solid rgba(0, 0, 0, 1.00);border-top: 0 solid rgba(0, 0, 0, 1.00);border-left: 0 solid rgba(0, 0, 0, 1.00);border-right: 0 solid rgba(0, 0, 0, 1.00);margin-bottom:0;margin-top:0;margin-left:0;margin-right:0;}</style><table data-quarto-disable-processing="true" class="cl-5c86e88e"><thead><tr style="overflow-wrap:break-word;"><th class="cl-5c7f9188"><p class="cl-5c7f56b4"><span class="cl-5c7aa22c">CommonName</span></p></th><th class="cl-5c7f9192"><p class="cl-5c7f56b4"><span class="cl-5c7aa22c">ScientificName</span></p></th><th class="cl-5c7f9193"><p class="cl-5c7f56b4"><span class="cl-5c7aa22c">Code</span></p></th><th class="cl-5c7f919c"><p class="cl-5c7f56b4"><span class="cl-5c7aa22c">Definition</span></p></th></tr></thead><tbody><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91a6"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Big Brown Bat</span></p></td><td class="cl-5c7f91a7"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Eptesicus fuscus</span></p></td><td class="cl-5c7f91b0"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">EPFU</span></p></td><td class="cl-5c7f91b1"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that have diagnostic features identifying it as Eptesicus fuscus</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91b2"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Big Brown Bat / Silver-haired Bat</span></p></td><td class="cl-5c7f91ba"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Eptesicus fuscus / Lasionycteris noctivagans</span></p></td><td class="cl-5c7f91bb"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">EPFULANO</span></p></td><td class="cl-5c7f91c4"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that could be attributed to either Eptesicus fuscus or Lasionycteris noctivagans</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91a6"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Eastern Red Bat</span></p></td><td class="cl-5c7f91a7"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Lasiurus borealis</span></p></td><td class="cl-5c7f91b0"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">LABO</span></p></td><td class="cl-5c7f91b1"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that have diagnostic features identifying it as Lasiurus borealis</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91b2"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Eastern Red Bat / Little Brown Myotis</span></p></td><td class="cl-5c7f91ba"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Lasiurus borealis / Myotis lucifugus</span></p></td><td class="cl-5c7f91bb"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">LABOMYLU</span></p></td><td class="cl-5c7f91c4"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that could be attributed to either Lasiurus borealis or Myotis lucifugus</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91a6"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Hoary Bat</span></p></td><td class="cl-5c7f91a7"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Lasiurus cinereus</span></p></td><td class="cl-5c7f91b0"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">LACI</span></p></td><td class="cl-5c7f91b1"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that have diagnostic features identifying it as Lasiurus cinereus</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91b2"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Hoary Bat / Silver-haired Bat</span></p></td><td class="cl-5c7f91ba"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Lasiurus cinereus / Lasionycteris noctivagans</span></p></td><td class="cl-5c7f91bb"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">LACILANO</span></p></td><td class="cl-5c7f91c4"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that could be attributed to either Lasiurus cinereus or Lasionycteris noctivagans</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91a6"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Silver-haired Bat</span></p></td><td class="cl-5c7f91a7"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Lasionycteris noctivagans</span></p></td><td class="cl-5c7f91b0"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">LANO</span></p></td><td class="cl-5c7f91b1"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that have diagnostic features identifying it as Lasionycteris noctivagans</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91b2"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Little Brown Myotis</span></p></td><td class="cl-5c7f91ba"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Myotis lucifugus</span></p></td><td class="cl-5c7f91bb"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">MYLU</span></p></td><td class="cl-5c7f91c4"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that have diagnostic features identifying it as Myotis lucifugus</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91a6"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Little Brown Myotis / Northern Myotis</span></p></td><td class="cl-5c7f91a7"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Myotis lucifugus / Myotis septentrionalis</span></p></td><td class="cl-5c7f91b0"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">MYLUMYSE</span></p></td><td class="cl-5c7f91b1"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that could be attributed to either Myotis lucifugus or Myotis septentrionalis</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91b2"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Northern Myotis</span></p></td><td class="cl-5c7f91ba"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Myotis septentrionalis</span></p></td><td class="cl-5c7f91bb"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">MYSE</span></p></td><td class="cl-5c7f91c4"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Calls that have diagnostic features identifying it as Myotis septentrionalis</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91a6"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">40kHz Frequency Myotis</span></p></td><td class="cl-5c7f91a7"><p class="cl-5c7f56b4"><span class="cl-5c7aa236"></span></p></td><td class="cl-5c7f91b0"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">40kMyo</span></p></td><td class="cl-5c7f91b1"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Various species of Myotis that have a characteristic frequency in the range of 35-40kHz</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91b2"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">High Frequency Bat</span></p></td><td class="cl-5c7f91ba"><p class="cl-5c7f56b4"><span class="cl-5c7aa236"></span></p></td><td class="cl-5c7f91bb"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">HIGH FREQUENCY</span></p></td><td class="cl-5c7f91c4"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Various species with pulses having a characteristic frequency higher than ~35kHz</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91a6"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Low Frequency Bat</span></p></td><td class="cl-5c7f91a7"><p class="cl-5c7f56b4"><span class="cl-5c7aa236"></span></p></td><td class="cl-5c7f91b0"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">LOW FREQUENCY</span></p></td><td class="cl-5c7f91b1"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Various species with pulses having a characteristic frequency lower than ~30kHz</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91b2"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Unknown Bat</span></p></td><td class="cl-5c7f91ba"><p class="cl-5c7f56b4"><span class="cl-5c7aa236"></span></p></td><td class="cl-5c7f91bb"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">NoID</span></p></td><td class="cl-5c7f91c4"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Bat calls but no grouping category applies</span></p></td></tr><tr style="overflow-wrap:break-word;"><td class="cl-5c7f91a6"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Noise</span></p></td><td class="cl-5c7f91a7"><p class="cl-5c7f56b4"><span class="cl-5c7aa236"></span></p></td><td class="cl-5c7f91b0"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">Noise</span></p></td><td class="cl-5c7f91b1"><p class="cl-5c7f56b4"><span class="cl-5c7aa236">No bat recorded</span></p></td></tr></tbody></table></div>
+</div>
+</div>
+</section>
 <section id="literature-cited" class="level1">
 
 
@@ -332,24 +1018,57 @@ Results must be taken with caution because of small sample size, but overall can
 
 </section>
 
-<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Literature Cited</h2><div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" role="list">
+<div id="quarto-appendix" class="default"><section class="quarto-appendix-contents" role="doc-bibliography" id="quarto-bibliography"><h2 class="anchored quarto-appendix-heading">Literature Cited</h2><div id="refs" class="references csl-bib-body hanging-indent" role="list">
+<div id="ref-NRCan2025Wind" class="csl-entry" role="listitem">
+<span>“Canadian Wind Turbine Database.”</span> 2025. Natural Resources Canada, November 28. <a href="https://search.open.canada.ca/openmap/79fdad93-9025-49ad-ba16-c26d718cc070">https://search.open.canada.ca/openmap/79fdad93-9025-49ad-ba16-c26d718cc070</a>.
+</div>
+<div id="ref-cwhc-rcsf2024Canadian" class="csl-entry" role="listitem">
+CWHC-RCSF. 2024. <span>“Canadian <span>Wildlife Health Cooperative</span> - <span>Réseau</span> Canadien Pour La Santé de La Faune.”</span> <a href="https://www.cwhc-rcsf.ca/white_nose_syndrome_reports_and_maps.php">https://www.cwhc-rcsf.ca/white_nose_syndrome_reports_and_maps.php</a>.
+</div>
+<div id="ref-ministryofenergyandclimatesolutions2024BC" class="csl-entry" role="listitem">
+Energy and Climate Solutions, Ministry of. 2024. <span>“<span>BC Gov News</span>.”</span> December 9. <a href="https://news.gov.bc.ca/releases/2024ECS0048-001643">https://news.gov.bc.ca/releases/2024ECS0048-001643</a>.
+</div>
+<div id="ref-friedenberg2021Assessing" class="csl-entry" role="listitem">
+Friedenberg, Nicholas A., and Winifred F. Frick. 2021. <span>“Assessing Fatality Minimization for Hoary Bats Amid Continued Wind Energy Development.”</span> <em>Biological Conservation</em> 262 (October): 109309. <a href="https://doi.org/10.1016/j.biocon.2021.109309">https://doi.org/10.1016/j.biocon.2021.109309</a>.
+</div>
 <div id="ref-loeb2015Plan" class="csl-entry" role="listitem">
-Loeb, Susan C., Thomas J. Rodhouse, Laura E. Ellison, Cori L. Lausen, Jonathan D. Reichard, Kathryn M. Irvine, Thomas E. Ingersoll, et al. 2015. <span>“A Plan for the <span>North American Bat Monitoring Program</span> (<span>NABat</span>).”</span> SRS-GTR-208. Asheville, NC: U.S. Department of Agriculture, Forest Service, Southern Research Station. <a href="https://doi.org/10.2737/SRS-GTR-208">https://doi.org/10.2737/SRS-GTR-208</a>.
+Loeb, Susan C., Thomas J. Rodhouse, Laura E. Ellison, et al. 2015. <em>A Plan for the <span>North American Bat Monitoring Program</span> (<span>NABat</span>)</em>. SRS-GTR-208. U.S. Department of Agriculture, Forest Service, Southern Research Station. <a href="https://doi.org/10.2737/SRS-GTR-208">https://doi.org/10.2737/SRS-GTR-208</a>.
 </div>
 <div id="ref-olsonBat" class="csl-entry" role="listitem">
 Olson, Cory. n.d. <span>“Bat <span>Profiles</span>.”</span> Alberta Community Bat Program. Accessed March 6, 2025. <a href="https://www.albertabats.ca/batprofiles/">https://www.albertabats.ca/batprofiles/</a>.
 </div>
+<div id="ref-rae2022North" class="csl-entry" role="listitem">
+Rae, Jason, and Cori L Lausen. 2022. <em>North <span>American Bat Monitoring Program</span> in <span>British Columbia</span>: 2021 <span>Data Summary</span> and <span>Activity Trend Analyses</span> (2016-2021).</em> Wildlife Conservation Society of Canada.
+</div>
+<div id="ref-rae2024North" class="csl-entry" role="listitem">
+Rae, Jason, and Cori L Lausen. 2024. <em>North <span>American Bat Monitoring Program</span> in <span>British Columbia</span>: 2023 <span>Data Summary</span> and <span>Activity Trend Analyses</span> (2016-2023).</em> Wildlife Conservation Society of Canada.
+</div>
+<div id="ref-reichert2018" class="csl-entry" role="listitem">
+Reichert, Brian, Cori Lausen, Susan Loeb, et al. 2018a. <em>A Guide to Processing Bat Acoustic Data for the North American Bat Monitoring Program (NABat)</em>.
+</div>
 <div id="ref-reichert2018Guide" class="csl-entry" role="listitem">
-Reichert, Brian, Cori Lausen, Susan Loeb, Theodore J. Weller, Ryan Allen, Eric Britzke, Tara Hohoff, et al. 2018. <span>“A <span>Guide</span> to <span>Processing Bat Acoustic Data</span> for the <span>North American Bat Monitoring Program</span> (<span>NABat</span>).”</span> Open-File 2018–1068. U.S. Geological Survey.
+Reichert, Brian, Cori Lausen, Susan Loeb, et al. 2018b. <em>A <span>Guide</span> to <span>Processing Bat Acoustic Data</span> for the <span>North American Bat Monitoring Program</span> (<span>NABat</span>)</em>. Open-File Nos. 2018–1068. U.S. Geological Survey.
 </div>
 <div id="ref-slough2022New" class="csl-entry" role="listitem">
-Slough, Brian, Cori Lausen, Brian Paterson, Ingebjorg Hansen, Julie Thomas, Piia Kukka, Thomas Jung, Jason Rae, and Debbie Wetering. 2022. <span>“New Records about the Diversity, Distribution, and Seasonal Activity Patterns by Bats in <span>Yukon</span> and Northwestern <span>British Columbia</span>.”</span> <em>Northwestern Naturalist</em> 103 (August): 162–82. <a href="https://doi.org/10.1898/NWN21-10">https://doi.org/10.1898/NWN21-10</a>.
+Slough, Brian, Cori Lausen, Brian Paterson, et al. 2022. <span>“New Records about the Diversity, Distribution, and Seasonal Activity Patterns by Bats in <span>Yukon</span> and Northwestern <span>British Columbia</span>.”</span> <em>Northwestern Naturalist</em> 103 (August): 162–82. <a href="https://doi.org/10.1898/NWN21-10">https://doi.org/10.1898/NWN21-10</a>.
 </div>
 <div id="ref-solick2022Bat" class="csl-entry" role="listitem">
-Solick, Donald. 2022. <span>“Bat <span>Acoustic Species-Pair Matrix Western US</span>/<span>Canada</span>.”</span> 2022. <a href="https://www.batacousticsurveys.com/_files/ugd/a1e0ca_0ed9c3172b9145e49c50eb7a7712f909.pdf">https://www.batacousticsurveys.com/_files/ugd/a1e0ca_0ed9c3172b9145e49c50eb7a7712f909.pdf</a>.
+Solick, Donald. 2022. <span>“Bat <span>Acoustic Species-Pair Matrix Western US</span>/<span>Canada</span>.”</span> <a href="https://www.batacousticsurveys.com/_files/ugd/a1e0ca_0ed9c3172b9145e49c50eb7a7712f909.pdf">https://www.batacousticsurveys.com/_files/ugd/a1e0ca_0ed9c3172b9145e49c50eb7a7712f909.pdf</a>.
+</div>
+<div id="ref-committeeonthestatusofendangeredwildlifeincanada2023Hoary" class="csl-entry" role="listitem">
+Status of Endangered Wildlife in Canada, Committee on the. 2023. <span>“Hoary <span>Bat</span> (<span>Lasiurus</span> Cinereus) <span>Eastern Red Bat</span> (<span>Lasiurus</span> Borealis) <span class="nocase">Silver-haired Bat</span> (<span>Lasionycteris</span> Noctivagans): <span>COSEWIC</span> Assessment and Status Report 2023.”</span> <a href="https://www.canada.ca/en/environment-climate-change/services/species-risk-public-registry/cosewic-assessments-status-reports/hoary-bat-eastern-red-bat-silver-haired-bat-2023.html">https://www.canada.ca/en/environment-climate-change/services/species-risk-public-registry/cosewic-assessments-status-reports/hoary-bat-eastern-red-bat-silver-haired-bat-2023.html</a>.
+</div>
+<div id="ref-stratton2022Coupling" class="csl-entry" role="listitem">
+Stratton, Christian, Kathryn M. Irvine, Katharine M. Banner, Wilson J. Wright, Cori Lausen, and Jason Rae. 2022. <span>“Coupling Validation Effort with in Situ Bioacoustic Data Improves Estimating Relative Activity and Occupancy for Multiple Species with Cross‐species Misclassifications.”</span> <em>Methods in Ecology and Evolution</em> 13 (6): 1288–303. <a href="https://doi.org/10.1111/2041-210X.13831">https://doi.org/10.1111/2041-210X.13831</a>.
 </div>
 <div id="ref-szewczak2018Acoustic" class="csl-entry" role="listitem">
-Szewczak, Joe. 2018. <span>“Acoustic <span>Features</span> of <span>Western US Bats</span>.”</span> Humboldt State University Bat Lab.
+Szewczak, Joe. 2018. <em>Acoustic <span>Features</span> of <span>Western US Bats</span></em>. Humboldt State University Bat Lab.
+</div>
+<div id="ref-u.s.fishandwidlifeserviceusfws2025WhiteNose" class="csl-entry" role="listitem">
+USFWS, U. S. Fish and Widlife Service. 2025. <span>“White-<span>Nose Syndrome</span>.”</span> <a href="https://www.whitenosesyndrome.org/">https://www.whitenosesyndrome.org/</a>.
+</div>
+<div id="ref-zimmerling2016Bat" class="csl-entry" role="listitem">
+Zimmerling, J. Ryan, and Charles M. Francis. 2016. <span>“Bat Mortality Due to Wind Turbines in <span>Canada</span>.”</span> <em>The Journal of Wildlife Management</em> 80 (8): 1360–69. <a href="https://doi.org/10.1002/jwmg.21128">https://doi.org/10.1002/jwmg.21128</a>.
 </div>
 </div></section></div></main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">

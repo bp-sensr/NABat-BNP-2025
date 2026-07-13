@@ -1,0 +1,6 @@
+sp,covariates
+EPFU,eccc_mean_temp + eccc_wind_speed + mtime2h
+LABO,eccc_mean_temp
+LACI,eccc_mean_temp + eccc_wind_speed + mtime2h + eccc_mean_rh
+LANO,eccc_precip + mphase + eccc_mean_rh
+40KMyo,eccc_mean_temp

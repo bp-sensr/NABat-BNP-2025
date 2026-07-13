@@ -1,6 +1,0 @@
-sp,best_family,formula,AIC,n_obs,n_sites,n_years,zero_prop,theta,SE_theta,dispersion_p,zero_infl_p,warnings
-EPFU,glmmTMB_nbinom2,n_files ~ YearS + z_julian + z_julian2 + z_eccc_mean_temp + z_mtime2h_mphase +      (1 | site),1150.3624516638763,264,3,5,0.4015151515151515,0.8374022576176374,NA,0.66,0.432,
-LABO,glmmTMB_nbinom2,n_files ~ YearS + z_julian + z_julian2 + z_eccc_mean_temp + z_eccc_wind_speed +      (1 | site),941.3836400720352,264,3,5,0.4659090909090909,0.7835827227941774,NA,0.852,0.564,
-LACI,glmmTMB_nbinom2,n_files ~ YearS + z_julian + z_julian2 + z_eccc_mean_temp + z_mtime2h_mphase +      (1 | site),1030.3720219735137,264,3,5,0.5037878787878788,0.4878540207460084,NA,0.752,0.44,
-LANO,glmmTMB_nbinom2,n_files ~ YearS + z_julian + z_julian2 + z_eccc_mean_temp + z_eccc_mean_rh +      z_eccc_wind_speed + (1 | site),1371.8472850356072,264,3,5,0.36363636363636365,0.5094401176981584,NA,0.296,0.648,
-40KMYO,glmmTMB_nbinom2,n_files ~ YearS + z_julian + z_julian2 + z_eccc_mean_temp + z_eccc_wind_speed +      (1 | site),2469.118540218807,264,3,5,0.1856060606060606,0.5309169491386441,NA,0.944,0.792,
