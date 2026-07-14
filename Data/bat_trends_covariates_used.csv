@@ -1,6 +1,6 @@
 sp,covariates
-EPFU,eccc_mean_temp + eccc_wind_speed + mtime2h
-LABO,eccc_mean_temp
-LACI,eccc_mean_temp + eccc_wind_speed + mtime2h + eccc_mean_rh
-LANO,eccc_precip + mphase + eccc_mean_rh
-40KMyo,eccc_mean_temp
+EPFU,Nightly Mean Temperature + Moon Above Horizon at Midnight (binary) + Nightly Mean Wind Speed
+LABO,Nightly Mean Relative Humidity + Nightly Mean Temperature + Nightly Precipitation + Nightly Mean Wind Speed + Moon Illumination Fraction
+LACI,Nightly Mean Temperature + Nightly Mean Wind Speed
+LANO,Nightly Mean Temperature + Nightly Mean Wind Speed + Moon Illumination Fraction + Nightly Precipitation
+40KMyo,Nightly Mean Temperature + Nightly Mean Wind Speed
