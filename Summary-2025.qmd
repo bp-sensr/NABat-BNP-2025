@@ -42,6 +42,440 @@ nocite: '@*'
 ---
 
 ```{r}
+#| label: reference -species trend models
+#| include: false
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+# #This is for reference only. The report does not use this code to create anything. This is the code used to create and select the best fit model. If need can uncomment the whole section and run code.
+# 
+# suppressPackageStartupMessages({
+#   library(tidyverse)
+#   library(janitor)
+#   library(glmmTMB)
+#   library(MuMIn)
+#   library(DHARMa)
+#   library(broom.mixed)
+#   library(patchwork)
+# })
+# 
+# # ------------------------- GLOBAL SETTINGS ---------------------------
+# YEARS_TO_USE <- c(2020, 2021,2022, 2023, 2024, 2025)
+# 
+# 
+# species_vec  <- c("EPFU", "LABO", "LACI", "LANO", "40KMyo", "MYEV") #MYEV not inlcuded because of low counts
+# 
+# # Candidate covariates (raw names in the file)
+# cand_raw <- c("eccc_mean_temp", "eccc_mean_rh", "eccc_precip",
+#               "eccc_wind_speed", "mphase", "mtime2h", "mtime2h_mphase")
+# 
+# MAX_COVARS  <- 5
+# DELTA_KEEP  <- 2
+# HIGH_WT     <- 0.80
+# MOD_WT      <- 0.50
+# forbid_pair <- c("z_mtime2h", "z_mtime2h_mphase")
+# COR_CUTOFF  <- 0.70
+# 
+# ctrl_nlminb <- glmmTMBControl(optCtrl = list(iter.max = 20000, eval.max = 20000))
+# ctrl_bfgs   <- glmmTMBControl(optimizer = optim,
+#                               optArgs   = list(method = "BFGS",
+#                                                control = list(maxit = 20000)))
+# #when run this code LANO best fit family is ZINB, but by a marginal difference in AIC. For consistency and to easily compare across spp models will force to use NB2 since all other species used it
+# FORCE_FAMILY <- c(LABO = "NB2", '40KMyo' = "NB2" )
+# # ----------------------------- HELPERS -------------------------------
+# scale_with_na <- function(x) {
+#   x <- as.numeric(x)
+#   m <- mean(x, na.rm = TRUE); s <- sd(x, na.rm = TRUE)
+#   if (!is.finite(m) || !is.finite(s) || s == 0) return(rep(0, length(x)))
+#   (x - m) / s
+# }
+# 
+# make_subsets <- function(vars, kmax) {
+#   out <- list(character(0))
+#   for (k in 1:min(kmax, length(vars))) out <- c(out, combn(vars, k, simplify = FALSE))
+#   out
+# }
+# 
+# ok_subset <- function(ss) !all(forbid_pair %in% ss)
+# 
+# AICc_safe <- function(mod) {
+#   if (is.null(mod)) return(NA_real_)
+#   a <- tryCatch(MuMIn::AICc(mod), error = function(e) NA_real_)
+#   if (!is.finite(a)) NA_real_ else a
+# }
+# 
+# fit_try_glmmTMB <- function(fml, data, family, ziformula = ~0) {
+#   fit_once <- function(ctrl) {
+#     tryCatch(
+#       glmmTMB(fml, data = data, family = family, ziformula = ziformula,
+#               dispformula = ~1, REML = FALSE, control = ctrl),
+#       error = function(e) e
+#     )
+#   }
+#   m1 <- fit_once(ctrl_nlminb)
+#   if (!inherits(m1, "error")) return(list(mod = m1, ctrl = "nlminb", err = NA_character_))
+#   m2 <- fit_once(ctrl_bfgs)
+#   if (!inherits(m2, "error")) return(list(mod = m2, ctrl = "BFGS", err = NA_character_))
+#   list(mod = NULL, ctrl = NA_character_,
+#        err = paste("nlminb:", m1$message, "| BFGS:", m2$message))
+# }
+# 
+# strip_cond <- function(x) gsub("\\)$", "", gsub("^cond\\(", "", x))
+# 
+# drop_collinear <- function(df, vars, cutoff = 0.7) {
+#   vars <- vars[vars %in% names(df)]
+#   if (length(vars) <= 1) return(vars)
+#   repeat {
+#     cc <- suppressWarnings(cor(df[, vars, drop = FALSE], use = "pairwise.complete.obs"))
+#     cc[is.na(cc)] <- 0; diag(cc) <- 0
+#     mx <- max(abs(cc))
+#     if (!is.finite(mx) || mx < cutoff) break
+#     idx <- which(abs(cc) == mx, arr.ind = TRUE)[1, ]
+#     v1 <- vars[idx[1]]; v2 <- vars[idx[2]]
+#     mean_abs <- colMeans(abs(cc))
+#     drop_v <- if (mean_abs[v1] >= mean_abs[v2]) v1 else v2
+#     vars <- setdiff(vars, drop_v)
+#   }
+#   vars
+# }
+# 
+# # --------------------- READ DATA ONCE (not per species) --------------
+# dat_raw <- read.csv("Data/NABat_Banff2020-2025-detector.csv")
+# dat_raw <- dat_raw %>%
+#   mutate(
+#     date    = as.Date(date),
+#     year    = as.integer(year),
+#     species = as.character(species),
+#     site    = factor(x_location_name)
+#   )
+# #remove the driving transects from stationary deployment models
+# dat_raw <- dat_raw[dat_raw$x_location_name !="DrivingTransect",]
+# 
+# # ---- Collapse the 40 kHz Myotis complex into one code, summing counts ----
+# myo_codes <- c("MYVO", "MYLU", "MYSE", "40KMYO")
+# 
+# dat_raw  <- dat_raw %>%
+#   mutate(species = if_else(species %in% myo_codes, "40KMyo", species)) %>%
+#   group_by(species, year, date, x_location_name) %>%
+#   summarise(
+#     n_files   = sum(n_files,   na.rm = TRUE),   # combine detections across the 4 spp
+#     sec_total = sum(sec_total, na.rm = TRUE),   # combine effort (per-species here)
+#     across(-c(n_files, sec_total), first),      # covariates are night-level & identical
+#     .groups = "drop"
+#   )
+# 
+# cand_raw <- intersect(cand_raw, names(dat_raw))   # keep only covariates present
+# 
+# # =====================================================================
+# ## PER-SPECIES WORKER
+# ## Returns ok = TRUE only if a final support model converged.
+# ## Any stop()/error inside is caught -> ok = FALSE with a reason,
+# ## so one problem species never kills the whole loop.
+# # =====================================================================
+# run_species <- function(SP, data_all) {
+# 
+#   fail <- function(reason)
+#     list(sp = SP, ok = FALSE, reason = reason,
+#          report_tbl = tibble(), meta_tbl = tibble(), diag_tbl = tibble(),
+#          support_vars = character(0),
+#          plot = ggplot() + theme_void() +
+#            labs(title = paste0(SP, " (", reason, ")")))
+# 
+#   tryCatch({
+# 
+#     # 0) filter + YearS + z-scale
+#     dat0 <- data_all %>%
+#       filter(year %in% YEARS_TO_USE, species == SP) %>%
+#       mutate(YearS    = year - min(YEARS_TO_USE),
+#              det_unit = factor(det_unit))
+# 
+#     cand_use <- intersect(cand_raw, names(dat0))
+#     if (length(cand_use) == 0) return(fail("no candidate covariates in data"))
+#     for (v in cand_use) dat0[[paste0("z_", v)]] <- scale_with_na(dat0[[v]])
+#     zcand_all <- paste0("z_", cand_use)
+# 
+#     needed <- c("n_files", "YearS", "site", "det_unit", zcand_all)
+#     df_use <- dat0 %>% drop_na(any_of(needed)) %>% droplevels()
+# 
+#     if (nrow(df_use) < 30 || dplyr::n_distinct(df_use$year) < 2)
+#       return(fail("insufficient data after NA filtering"))
+# 
+#     zero_prop <- mean(df_use$n_files == 0, na.rm = TRUE)
+# 
+#     # A) collinearity screen
+#     zcand_keep <- drop_collinear(df_use, zcand_all, cutoff = COR_CUTOFF)
+#     if (all(forbid_pair %in% zcand_keep)) {
+#       cc <- suppressWarnings(cor(df_use[, zcand_keep, drop = FALSE],
+#                                  use = "pairwise.complete.obs"))
+#       cc[is.na(cc)] <- 0; diag(cc) <- 0
+#       mean_abs <- colMeans(abs(cc))
+#       zcand_keep <- setdiff(zcand_keep,
+#                             forbid_pair[which.max(mean_abs[forbid_pair])])
+#     }
+#     if (length(zcand_keep) == 0) return(fail("collinearity screen removed all covariates"))
+# 
+#     # 1) selection over NB2 subsets
+#     subsets <- make_subsets(zcand_keep, MAX_COVARS)
+#     subsets <- subsets[vapply(subsets, ok_subset, logical(1))]
+# 
+#     model_list <- list(); rhs_vec <- character(0)
+#     aicc_vec <- numeric(0); ctrl_used <- character(0)
+#     fail_log <- tibble(covars = character(0), error = character(0))
+# 
+#     for (ss in subsets) {
+#       rhs <- c("YearS","det_unit", ss, "(1|site:year)") #need to account for the differences in detectors over the years as well as site differences
+#       fml <- as.formula(paste("n_files ~", paste(rhs, collapse = " + ")))
+#       fit <- fit_try_glmmTMB(fml, df_use, family = nbinom2(link = "log"), ziformula = ~0)
+#       if (is.null(fit$mod)) {
+#         fail_log <- add_row(fail_log, covars = paste(ss, collapse = " + "), error = fit$err); next
+#       }
+#       a <- AICc_safe(fit$mod)
+#       if (!is.na(a)) {
+#         model_list[[length(model_list) + 1]] <- fit$mod
+#         aicc_vec  <- c(aicc_vec, a)
+#         rhs_vec   <- c(rhs_vec, paste(ss, collapse = " + "))
+#         ctrl_used <- c(ctrl_used, fit$ctrl)
+#       } else {
+#         fail_log <- add_row(fail_log, covars = paste(ss, collapse = " + "), error = "AICc NA")
+#       }
+#     }
+#     if (length(model_list) == 0) return(fail("no NB2 selection models converged"))
+# 
+#     sel_tbl <- tibble(model_id = seq_along(model_list), covars = rhs_vec,
+#                       ctrl = ctrl_used, AICc = aicc_vec) %>%
+#       arrange(AICc) %>%
+#       mutate(delta = AICc - min(AICc),
+#              weight = exp(-0.5 * delta) / sum(exp(-0.5 * delta)))
+# 
+#     keep_delta <- DELTA_KEEP
+#     top_ids <- sel_tbl %>% filter(delta <= keep_delta) %>% pull(model_id)
+#     if (length(top_ids) < 2) {
+#       keep_delta <- 4
+#       top_ids <- sel_tbl %>% filter(delta <= keep_delta) %>% pull(model_id)
+#     }
+#     topmods <- model_list[top_ids]
+#     avg <- if (length(topmods) >= 2) MuMIn::model.avg(topmods) else NULL
+# 
+#     # 2) support variables from importance weights
+#     if (!is.null(avg)) {
+#       support_source <- as.data.frame(MuMIn::sw(avg)) %>%
+#         rownames_to_column("term") %>% rename(sumw = 2) %>%
+#         mutate(term = strip_cond(term)) %>%
+#         filter(term %in% c("YearS", zcand_keep)) %>% arrange(desc(sumw))
+#     } else {
+#       support_source <- tibble(term = zcand_keep, sumw = 0)
+#       for (i in seq_len(nrow(sel_tbl))) {
+#         ss <- trimws(unlist(strsplit(sel_tbl$covars[i], "\\+"))); ss <- ss[ss != ""]
+#         support_source$sumw[support_source$term %in% ss] <-
+#           support_source$sumw[support_source$term %in% ss] + sel_tbl$weight[i]
+#       }
+#       support_source <- support_source %>% arrange(desc(sumw))
+#     }
+# 
+#     high_vars <- support_source %>% filter(term != "YearS", sumw >= HIGH_WT) %>% pull(term)
+#     mod_vars  <- support_source %>% filter(term != "YearS", sumw >= MOD_WT)  %>% pull(term)
+#     support_vars <- mod_vars
+#     if (length(support_vars) == 0)
+#       support_vars <- if (length(high_vars) > 0) high_vars
+#     else support_source$term[support_source$term != "YearS"][1]
+#     if (all(forbid_pair %in% support_vars)) {
+#       pair_tbl <- support_source %>% filter(term %in% forbid_pair)
+#       support_vars <- setdiff(support_vars, pair_tbl$term[which.min(pair_tbl$sumw)])
+#     }
+#     support_vars <- support_vars[!is.na(support_vars)]
+# 
+#     # 3) fit support model across 4 families, pick best by AICc
+#     f_support <- as.formula(
+#       paste("n_files ~ YearS + det_unit +", paste(support_vars, collapse = " + "), " + (1|site:year)"))
+# 
+#     fit_support_family <- function(fam_name) {
+#       spec <- switch(fam_name,
+#                      NB2   = list(fam = nbinom2(link = "log"), zi = ~0),
+#                      NB1   = list(fam = nbinom1(link = "log"), zi = ~0),
+#                      ZINB2 = list(fam = nbinom2(link = "log"), zi = ~1),
+#                      ZINB1 = list(fam = nbinom1(link = "log"), zi = ~1))
+#       fit <- fit_try_glmmTMB(f_support, df_use, family = spec$fam, ziformula = spec$zi)
+#       if (is.null(fit$mod))
+#         return(list(mod = NULL, fam = fam_name, ctrl = NA_character_,
+#                     AICc = NA_real_, dispersion_p = NA_real_, zero_infl_p = NA_real_))
+#       sim    <- tryCatch(DHARMa::simulateResiduals(fit$mod, n = 500), error = function(e) NULL)
+#       disp_p <- if (!is.null(sim)) tryCatch(DHARMa::testDispersion(sim)$p.value, error = function(e) NA_real_) else NA_real_
+#       zi_p   <- if (!is.null(sim)) tryCatch(DHARMa::testZeroInflation(sim)$p.value, error = function(e) NA_real_) else NA_real_
+#       list(mod = fit$mod, fam = fam_name, ctrl = fit$ctrl, AICc = AICc_safe(fit$mod),
+#            dispersion_p = disp_p, zero_infl_p = zi_p)
+#     }
+# 
+#     fits <- lapply(c("NB2", "NB1", "ZINB2", "ZINB1"), fit_support_family)
+#     names(fits) <- c("NB2", "NB1", "ZINB2", "ZINB1")
+#     fit_ok <- fits[!vapply(fits, function(x) is.null(x$mod), logical(1))]
+#     if (length(fit_ok) == 0) return(fail("no support-family model converged"))
+# 
+#     diag_tbl <- tibble(
+#       family       = names(fit_ok),
+#       AICc         = vapply(fit_ok, function(x) x$AICc, numeric(1)),
+#       dispersion_p = vapply(fit_ok, function(x) x$dispersion_p, numeric(1)),
+#       zero_infl_p  = vapply(fit_ok, function(x) x$zero_infl_p, numeric(1))
+#     ) %>% arrange(AICc)
+# 
+#     best_family <- diag_tbl$family[1]
+#     if (SP %in% names(FORCE_FAMILY) && FORCE_FAMILY[[SP]] %in% diag_tbl$family) {
+#       best_family <- FORCE_FAMILY[[SP]]     # override the AICc pick
+#     }
+#     best_row    <- which(diag_tbl$family == best_family)[1]
+#     final_model <- fit_ok[[best_family]]$mod
+# 
+#     # 4) fixed-effects + IRR table
+#     report_tbl <- broom.mixed::tidy(final_model, effects = "fixed", conf.int = TRUE) %>%
+#       mutate(sp = SP, family = best_family,
+#              IRR = exp(estimate), IRR_low = exp(conf.low), IRR_high = exp(conf.high)) %>%
+#       select(sp, family, term, estimate, std.error, conf.low, conf.high,
+#              statistic, p.value, IRR, IRR_low, IRR_high)
+# 
+#     re_sd <- broom.mixed::tidy(final_model, effects = "ran_pars") %>%
+#       filter(group == "site:year", term == "sd__(Intercept)") %>% pull(estimate)
+#     re_sd <- if (length(re_sd) == 0) NA_real_ else re_sd[1]
+# 
+#     meta_tbl <- tibble(
+#       sp          = SP,
+#       best_family = best_family,
+#       optimizer   = fit_ok[[best_family]]$ctrl,
+#       formula     = paste(deparse(f_support), collapse = ""),
+#       n_obs       = nobs(final_model),
+#       n_sites     = nlevels(df_use$site),
+#       n_years     = dplyr::n_distinct(df_use$year),
+#       zero_prop   = zero_prop,
+#       site_re_sd  = re_sd,
+#       theta       = sigma(final_model),
+#       AIC         = AIC(final_model),
+#       AICc_best    = diag_tbl$AICc[best_row],
+#       dispersion_p = diag_tbl$dispersion_p[best_row],
+#       zero_infl_p  = diag_tbl$zero_infl_p[best_row]
+#     )
+# 
+#     # 5) trend plot (log y-axis + observed yearly means overlaid)
+#     year_seq  <- seq(min(df_use$YearS), max(df_use$YearS), length.out = 200)
+#     pred_grid <- tibble(YearS = year_seq)
+#     for (v in support_vars) pred_grid[[v]] <- 0
+#     pred_grid$site      <- df_use$site[1]
+#     pred_grid$year      <- df_use$year[1]   # real level so site:year exists; re.form = NA zeroes it
+#     pred_grid$det_unit  <- factor("Swift", levels = levels(df_use$det_unit))
+#     pred_grid$year_plot <- min(df_use$year) + year_seq
+#     
+#     pr <- predict(final_model, newdata = pred_grid, type = "link",
+#                   se.fit = TRUE, re.form = NA)
+#     pred_trend <- pred_grid %>%
+#       mutate(fit = exp(pr$fit),
+#              lo  = exp(pr$fit - 1.96 * pr$se.fit),
+#              hi  = exp(pr$fit + 1.96 * pr$se.fit))
+# 
+#     obs_year <- df_use %>% group_by(year) %>%
+#       summarise(mean_files = mean(n_files), .groups = "drop") %>%
+#       filter(mean_files > 0)   # log axis can't show 0
+# 
+#     # dash the trend line when YearS is highly significant (p < 0.001)
+#     yearS_p   <- report_tbl$p.value[report_tbl$term == "YearS"][1]
+#     line_type <- if (!is.na(yearS_p) && yearS_p < 0.05) "solid" else "dashed"
+# 
+#     p <- ggplot(pred_trend, aes(year_plot, fit)) +
+#       geom_ribbon(aes(ymin = lo, ymax = hi), alpha = 0.25) +
+#       geom_line(linewidth = 1, linetype = line_type) +
+#       labs(title = SP, x = "Year", y = "Predicted detections per night") +
+#       theme_classic()
+# 
+#     list(sp = SP, ok = TRUE, reason = NA_character_,
+#          report_tbl = report_tbl, meta_tbl = meta_tbl, diag_tbl = diag_tbl,
+#          support_vars = support_vars, plot = p)
+# 
+#   }, error = function(e) fail(conditionMessage(e)))
+# }
+# 
+# # =====================================================================
+# ## RUN THE LOOP
+# # =====================================================================
+# results <- lapply(species_vec, run_species, data_all = dat_raw)
+# names(results) <- species_vec
+# 
+# ok_flags <- vapply(results, function(x) isTRUE(x$ok), logical(1))
+# message("Converged: ", paste(species_vec[ok_flags], collapse = ", "),
+#         " | Failed: ", paste(species_vec[!ok_flags], collapse = ", "))
+# 
+# # ---------------------------------------------------------------------
+# ## (1) MODEL SUMMARY — one row per species that CONVERGED
+# ##     meta stats + the headline YearS (trend) effect
+# # ---------------------------------------------------------------------
+# models_summary <- bind_rows(lapply(results[ok_flags], function(x) {
+#   yr <- x$report_tbl %>% filter(term == "YearS")
+#   x$meta_tbl %>%
+#     mutate(
+#       YearS_estimate = yr$estimate[1],
+#       YearS_se       = yr$std.error[1],
+#       YearS_p        = yr$p.value[1],
+#       YearS_IRR      = yr$IRR[1],
+#       YearS_IRR_low  = yr$IRR_low[1],
+#       YearS_IRR_high = yr$IRR_high[1]
+#     )
+# }))
+# 
+# # species that did NOT converge, with the reason
+# models_failed <- tibble(
+#   sp     = species_vec[!ok_flags],
+#   reason = vapply(results[!ok_flags],
+#                   function(x) if (is.null(x$reason)) "unknown" else x$reason,
+#                   character(1))
+# )
+# 
+# # ---------------------------------------------------------------------
+# ## (2) COVARIATES USED — which covariates each converged model kept
+# ##     (YearS + (1|site:year) are in every model, so not listed here)
+# # ---------------------------------------------------------------------
+# 
+# # readable labels for covariates (raw model name -> display name)
+# cov_labels <- c(
+#   eccc_mean_temp  = "Nightly Mean Temperature",
+#   eccc_wind_speed = "Nightly Mean Wind Speed",
+#   mtime2h         = "Moon Above Horizon at Midnight (binary)",
+#   eccc_mean_rh    = "Nightly Mean Relative Humidity",
+#   eccc_precip     = "Nightly Precipitation",
+#   mphase          = "Moon Illumination Fraction",
+#   mtime2h_mphase = "Moon Above Horizon \u00d7 Illumination"
+# )
+# 
+# 
+# covariates_used <- tibble(
+#   sp = species_vec[ok_flags],
+#   covariates = vapply(results[ok_flags], function(x) {
+#     v <- sub("^z_", "", x$support_vars)          # drop the z_ prefix
+#     v <- ifelse(v %in% names(cov_labels), cov_labels[v], v)  # apply readable labels
+#     if (length(v) == 0) NA_character_ else paste(v, collapse = " + ")
+#   }, character(1))
+# )
+# 
+# 
+# # full fixed-effects / IRR table across all converged species (optional but handy)
+# all_report <- bind_rows(lapply(results[ok_flags], `[[`, "report_tbl"))
+# 
+# ## WRITE OUTPUTS
+# # ---------------------------------------------------------------------
+# dir.create("Data", recursive = TRUE, showWarnings = FALSE)
+# write_csv(models_summary,       "Data/bat_trends_models_summary.csv")
+# write_csv(covariates_used,      "Data/bat_trends_covariates_used.csv")
+# write_csv(models_failed,        "Data/bat_trends_models_failed.csv")
+# write_csv(all_report,           "Data/bat_trends_fixed_effects_IRR_all_species.csv")
+# 
+# 
+# ## MULTIPANEL PLOT (converged species)
+# # ---------------------------------------------------------------------
+# plot_list <- lapply(results[ok_flags], `[[`, "plot")
+# if (length(plot_list) > 0) {
+#   multi <- patchwork::wrap_plots(plot_list, ncol = 3)
+#   ggsave("Figures/Trends/bat_trends_multipanel-det.png", multi, width = 12, height = 8, dpi = 300)
+#   ggsave("Figures/Trends/bat_trends_multipanel-det.pdf", multi, width = 12, height = 8)
+# }
+```
+
+```{r}
 #| label: Load packages and summary data
 #| include: false
 #| echo: false
@@ -60,9 +494,16 @@ library(flextable)
 library(kableExtra)
 library(knitr)
 
+#load summary and trend model data
+df <- read.csv("Data/NABat_Banff2020-2025-detector.csv")
+
+models_summary <- read_csv("Data/bat_trends_models_summary.csv")
+covariates_used<- read_csv("Data/bat_trends_covariates_used.csv")
+
+
 #FORMAT THE NIGHTLY SUMMARY TABLE
 #---Load the data-----------------------------------------------------------
-df <- read.csv("Data/NABat_Banff2020-2025.csv")
+
 df <- df |>
   mutate(Site = case_when(
     x_location_name == "148842_NW_01" ~ "Fenlands",
@@ -119,11 +560,6 @@ tbl <- tbl %>% select(-c(MYOTIS,"40KMYO",HIF,LOWF, NOID))
 
 sp_cols <- intersect(sp_order, names(tbl))  # species columns actually present
 
-#sumarize total species detections for reporting
-totalspp <- df |>
-  group_by(species) |>
-  summarise(total = sum(n_files),
-            mean_total =mean(n_files), .groups = "drop")
 ```
 
 ```{r}
@@ -138,8 +574,7 @@ unique_bat_ids <- data.frame(
   Code = c("EPFU", "EPFULANO", "LABO", "LABOMYLU", "LACI",
            "LACILANO", "LANO", "MYLU", "MYLUMYSE", "MYSE",
            "40kMyo", "HIGH FREQUENCY", "LOW FREQUENCY", "NoID", "Noise"),
-  stringsAsFactors = FALSE
-)
+  stringsAsFactors = FALSE)
 
 # Definitions
 unique_bat_ids$Definition <- c(
@@ -202,432 +637,7 @@ unique_bat_id_vector <- unique_bat_ids$Code
 
 ```
 
-```{r}
-#| label: setup - species trend models
-#| include: false
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-
-# #This is for reference only. The report does not use this code to create anything. This is the code used to create and select the best fit model. If need can uncomment the whole section and run code. 
-# 
-# suppressPackageStartupMessages({
-#   library(tidyverse)
-#   library(janitor)
-#   library(glmmTMB)
-#   library(MuMIn)
-#   library(DHARMa)
-#   library(broom.mixed)
-#   library(patchwork)
-# })
-# 
-# # ------------------------- GLOBAL SETTINGS ---------------------------
-# YEARS_TO_USE <- c(2020, 2021,2022, 2023, 2024, 2025)
-# 
-# 
-# species_vec  <- c("EPFU", "LABO", "LACI", "LANO", "40KMyo") #MYEV not inlcuded because of low counts
-# 
-# # Candidate covariates (raw names in the file)
-# cand_raw <- c("eccc_mean_temp", "eccc_mean_rh", "eccc_precip",
-#               "eccc_wind_speed", "mphase", "mtime2h", "mtime2h_mphase")
-# 
-# MAX_COVARS  <- 5
-# DELTA_KEEP  <- 2
-# HIGH_WT     <- 0.80
-# MOD_WT      <- 0.50
-# forbid_pair <- c("z_mtime2h", "z_mtime2h_mphase")
-# COR_CUTOFF  <- 0.70
-# 
-# ctrl_nlminb <- glmmTMBControl(optCtrl = list(iter.max = 20000, eval.max = 20000))
-# ctrl_bfgs   <- glmmTMBControl(optimizer = optim,
-#                               optArgs   = list(method = "BFGS",
-#                                                control = list(maxit = 20000)))
-# #when run this code LANO best fit family is ZINB, but by a marginal difference in AIC. For consistency and to easily compare across spp models will force to use NB2 since all other species used it
-# FORCE_FAMILY <- c(LANO = "NB2")
-# # ----------------------------- HELPERS -------------------------------
-# scale_with_na <- function(x) {
-#   x <- as.numeric(x)
-#   m <- mean(x, na.rm = TRUE); s <- sd(x, na.rm = TRUE)
-#   if (!is.finite(m) || !is.finite(s) || s == 0) return(rep(0, length(x)))
-#   (x - m) / s
-# }
-# 
-# make_subsets <- function(vars, kmax) {
-#   out <- list(character(0))
-#   for (k in 1:min(kmax, length(vars))) out <- c(out, combn(vars, k, simplify = FALSE))
-#   out
-# }
-# 
-# ok_subset <- function(ss) !all(forbid_pair %in% ss)
-# 
-# AICc_safe <- function(mod) {
-#   if (is.null(mod)) return(NA_real_)
-#   a <- tryCatch(MuMIn::AICc(mod), error = function(e) NA_real_)
-#   if (!is.finite(a)) NA_real_ else a
-# }
-# 
-# fit_try_glmmTMB <- function(fml, data, family, ziformula = ~0) {
-#   fit_once <- function(ctrl) {
-#     tryCatch(
-#       glmmTMB(fml, data = data, family = family, ziformula = ziformula,
-#               dispformula = ~1, REML = FALSE, control = ctrl),
-#       error = function(e) e
-#     )
-#   }
-#   m1 <- fit_once(ctrl_nlminb)
-#   if (!inherits(m1, "error")) return(list(mod = m1, ctrl = "nlminb", err = NA_character_))
-#   m2 <- fit_once(ctrl_bfgs)
-#   if (!inherits(m2, "error")) return(list(mod = m2, ctrl = "BFGS", err = NA_character_))
-#   list(mod = NULL, ctrl = NA_character_,
-#        err = paste("nlminb:", m1$message, "| BFGS:", m2$message))
-# }
-# 
-# strip_cond <- function(x) gsub("\\)$", "", gsub("^cond\\(", "", x))
-# 
-# drop_collinear <- function(df, vars, cutoff = 0.7) {
-#   vars <- vars[vars %in% names(df)]
-#   if (length(vars) <= 1) return(vars)
-#   repeat {
-#     cc <- suppressWarnings(cor(df[, vars, drop = FALSE], use = "pairwise.complete.obs"))
-#     cc[is.na(cc)] <- 0; diag(cc) <- 0
-#     mx <- max(abs(cc))
-#     if (!is.finite(mx) || mx < cutoff) break
-#     idx <- which(abs(cc) == mx, arr.ind = TRUE)[1, ]
-#     v1 <- vars[idx[1]]; v2 <- vars[idx[2]]
-#     mean_abs <- colMeans(abs(cc))
-#     drop_v <- if (mean_abs[v1] >= mean_abs[v2]) v1 else v2
-#     vars <- setdiff(vars, drop_v)
-#   }
-#   vars
-# }
-# 
-# # --------------------- READ DATA ONCE (not per species) --------------
-# dat_raw <- df %>% #using a copy of df to make sure that previous summary tables are not impacted by model code
-#   mutate(
-#     date    = as.Date(date),
-#     year    = as.integer(year),
-#     species = as.character(species),
-#     site    = factor(x_location_name)
-#   )
-# 
-# # ---- Collapse the 40 kHz Myotis complex into one code, summing counts ----
-# myo_codes <- c("MYVO", "MYLU", "MYSE", "40KMYO") 
-# 
-# dat_raw  <- dat_raw %>%
-#   mutate(species = if_else(species %in% myo_codes, "40KMyo", species)) %>%
-#   group_by(species, year, date, x_location_name) %>%
-#   summarise(
-#     n_files   = sum(n_files,   na.rm = TRUE),   # combine detections across the 4 spp
-#     sec_total = sum(sec_total, na.rm = TRUE),   # combine effort (per-species here)
-#     across(-c(n_files, sec_total), first),      # covariates are night-level & identical
-#     .groups = "drop"
-#   )
-# 
-# cand_raw <- intersect(cand_raw, names(dat_raw))   # keep only covariates present
-# 
-# # =====================================================================
-# ## PER-SPECIES WORKER
-# ## Returns ok = TRUE only if a final support model converged.
-# ## Any stop()/error inside is caught -> ok = FALSE with a reason,
-# ## so one problem species never kills the whole loop.
-# # =====================================================================
-# run_species <- function(SP, data_all) {
-#   
-#   fail <- function(reason)
-#     list(sp = SP, ok = FALSE, reason = reason,
-#          report_tbl = tibble(), meta_tbl = tibble(), diag_tbl = tibble(),
-#          support_vars = character(0),
-#          plot = ggplot() + theme_void() +
-#            labs(title = paste0(SP, " (", reason, ")")))
-#   
-#   tryCatch({
-#     
-#     # 0) filter + YearS + z-scale
-#     dat0 <- data_all %>%
-#       filter(year %in% YEARS_TO_USE, species == SP) %>%
-#       mutate(YearS = year - min(YEARS_TO_USE))
-#     
-#     cand_use <- intersect(cand_raw, names(dat0))
-#     if (length(cand_use) == 0) return(fail("no candidate covariates in data"))
-#     for (v in cand_use) dat0[[paste0("z_", v)]] <- scale_with_na(dat0[[v]])
-#     zcand_all <- paste0("z_", cand_use)
-#     
-#     needed <- c("n_files", "YearS", "site", zcand_all)
-#     df_use <- dat0 %>% drop_na(any_of(needed)) %>% droplevels()
-#     
-#     if (nrow(df_use) < 30 || dplyr::n_distinct(df_use$year) < 2)
-#       return(fail("insufficient data after NA filtering"))
-#     
-#     zero_prop <- mean(df_use$n_files == 0, na.rm = TRUE)
-#     
-#     # A) collinearity screen
-#     zcand_keep <- drop_collinear(df_use, zcand_all, cutoff = COR_CUTOFF)
-#     if (all(forbid_pair %in% zcand_keep)) {
-#       cc <- suppressWarnings(cor(df_use[, zcand_keep, drop = FALSE],
-#                                  use = "pairwise.complete.obs"))
-#       cc[is.na(cc)] <- 0; diag(cc) <- 0
-#       mean_abs <- colMeans(abs(cc))
-#       zcand_keep <- setdiff(zcand_keep,
-#                             forbid_pair[which.max(mean_abs[forbid_pair])])
-#     }
-#     if (length(zcand_keep) == 0) return(fail("collinearity screen removed all covariates"))
-#     
-#     # 1) selection over NB2 subsets
-#     subsets <- make_subsets(zcand_keep, MAX_COVARS)
-#     subsets <- subsets[vapply(subsets, ok_subset, logical(1))]
-#     
-#     model_list <- list(); rhs_vec <- character(0)
-#     aicc_vec <- numeric(0); ctrl_used <- character(0)
-#     fail_log <- tibble(covars = character(0), error = character(0))
-#     
-#     for (ss in subsets) {
-#       rhs <- c("YearS", ss, "(1|site)")
-#       fml <- as.formula(paste("n_files ~", paste(rhs, collapse = " + ")))
-#       fit <- fit_try_glmmTMB(fml, df_use, family = nbinom2(link = "log"), ziformula = ~0)
-#       if (is.null(fit$mod)) {
-#         fail_log <- add_row(fail_log, covars = paste(ss, collapse = " + "), error = fit$err); next
-#       }
-#       a <- AICc_safe(fit$mod)
-#       if (!is.na(a)) {
-#         model_list[[length(model_list) + 1]] <- fit$mod
-#         aicc_vec  <- c(aicc_vec, a)
-#         rhs_vec   <- c(rhs_vec, paste(ss, collapse = " + "))
-#         ctrl_used <- c(ctrl_used, fit$ctrl)
-#       } else {
-#         fail_log <- add_row(fail_log, covars = paste(ss, collapse = " + "), error = "AICc NA")
-#       }
-#     }
-#     if (length(model_list) == 0) return(fail("no NB2 selection models converged"))
-#     
-#     sel_tbl <- tibble(model_id = seq_along(model_list), covars = rhs_vec,
-#                       ctrl = ctrl_used, AICc = aicc_vec) %>%
-#       arrange(AICc) %>%
-#       mutate(delta = AICc - min(AICc),
-#              weight = exp(-0.5 * delta) / sum(exp(-0.5 * delta)))
-#     
-#     keep_delta <- DELTA_KEEP
-#     top_ids <- sel_tbl %>% filter(delta <= keep_delta) %>% pull(model_id)
-#     if (length(top_ids) < 2) {
-#       keep_delta <- 4
-#       top_ids <- sel_tbl %>% filter(delta <= keep_delta) %>% pull(model_id)
-#     }
-#     topmods <- model_list[top_ids]
-#     avg <- if (length(topmods) >= 2) MuMIn::model.avg(topmods) else NULL
-#     
-#     # 2) support variables from importance weights
-#     if (!is.null(avg)) {
-#       support_source <- as.data.frame(MuMIn::sw(avg)) %>%
-#         rownames_to_column("term") %>% rename(sumw = 2) %>%
-#         mutate(term = strip_cond(term)) %>%
-#         filter(term %in% c("YearS", zcand_keep)) %>% arrange(desc(sumw))
-#     } else {
-#       support_source <- tibble(term = zcand_keep, sumw = 0)
-#       for (i in seq_len(nrow(sel_tbl))) {
-#         ss <- trimws(unlist(strsplit(sel_tbl$covars[i], "\\+"))); ss <- ss[ss != ""]
-#         support_source$sumw[support_source$term %in% ss] <-
-#           support_source$sumw[support_source$term %in% ss] + sel_tbl$weight[i]
-#       }
-#       support_source <- support_source %>% arrange(desc(sumw))
-#     }
-#     
-#     high_vars <- support_source %>% filter(term != "YearS", sumw >= HIGH_WT) %>% pull(term)
-#     mod_vars  <- support_source %>% filter(term != "YearS", sumw >= MOD_WT)  %>% pull(term)
-#     support_vars <- mod_vars
-#     if (length(support_vars) == 0)
-#       support_vars <- if (length(high_vars) > 0) high_vars
-#     else support_source$term[support_source$term != "YearS"][1]
-#     if (all(forbid_pair %in% support_vars)) {
-#       pair_tbl <- support_source %>% filter(term %in% forbid_pair)
-#       support_vars <- setdiff(support_vars, pair_tbl$term[which.min(pair_tbl$sumw)])
-#     }
-#     support_vars <- support_vars[!is.na(support_vars)]
-#     
-#     # 3) fit support model across 4 families, pick best by AICc
-#     f_support <- as.formula(
-#       paste("n_files ~ YearS +", paste(support_vars, collapse = " + "), "+ (1|site)"))
-#     
-#     fit_support_family <- function(fam_name) {
-#       spec <- switch(fam_name,
-#                      NB2   = list(fam = nbinom2(link = "log"), zi = ~0),
-#                      NB1   = list(fam = nbinom1(link = "log"), zi = ~0),
-#                      ZINB2 = list(fam = nbinom2(link = "log"), zi = ~1),
-#                      ZINB1 = list(fam = nbinom1(link = "log"), zi = ~1))
-#       fit <- fit_try_glmmTMB(f_support, df_use, family = spec$fam, ziformula = spec$zi)
-#       if (is.null(fit$mod))
-#         return(list(mod = NULL, fam = fam_name, ctrl = NA_character_,
-#                     AICc = NA_real_, dispersion_p = NA_real_, zero_infl_p = NA_real_))
-#       sim    <- tryCatch(DHARMa::simulateResiduals(fit$mod, n = 500), error = function(e) NULL)
-#       disp_p <- if (!is.null(sim)) tryCatch(DHARMa::testDispersion(sim)$p.value, error = function(e) NA_real_) else NA_real_
-#       zi_p   <- if (!is.null(sim)) tryCatch(DHARMa::testZeroInflation(sim)$p.value, error = function(e) NA_real_) else NA_real_
-#       list(mod = fit$mod, fam = fam_name, ctrl = fit$ctrl, AICc = AICc_safe(fit$mod),
-#            dispersion_p = disp_p, zero_infl_p = zi_p)
-#     }
-#     
-#     fits <- lapply(c("NB2", "NB1", "ZINB2", "ZINB1"), fit_support_family)
-#     names(fits) <- c("NB2", "NB1", "ZINB2", "ZINB1")
-#     fit_ok <- fits[!vapply(fits, function(x) is.null(x$mod), logical(1))]
-#     if (length(fit_ok) == 0) return(fail("no support-family model converged"))
-#     
-#     diag_tbl <- tibble(
-#       family       = names(fit_ok),
-#       AICc         = vapply(fit_ok, function(x) x$AICc, numeric(1)),
-#       dispersion_p = vapply(fit_ok, function(x) x$dispersion_p, numeric(1)),
-#       zero_infl_p  = vapply(fit_ok, function(x) x$zero_infl_p, numeric(1))
-#     ) %>% arrange(AICc)
-#     
-#     best_family <- diag_tbl$family[1]
-#     if (SP %in% names(FORCE_FAMILY) && FORCE_FAMILY[[SP]] %in% diag_tbl$family) {
-#       best_family <- FORCE_FAMILY[[SP]]     # override the AICc pick
-#     }
-#     best_row    <- which(diag_tbl$family == best_family)[1]
-#     final_model <- fit_ok[[best_family]]$mod
-#     
-#     # 4) fixed-effects + IRR table
-#     report_tbl <- broom.mixed::tidy(final_model, effects = "fixed", conf.int = TRUE) %>%
-#       mutate(sp = SP, family = best_family,
-#              IRR = exp(estimate), IRR_low = exp(conf.low), IRR_high = exp(conf.high)) %>%
-#       select(sp, family, term, estimate, std.error, conf.low, conf.high,
-#              statistic, p.value, IRR, IRR_low, IRR_high)
-#     
-#     re_sd <- broom.mixed::tidy(final_model, effects = "ran_pars") %>%
-#       filter(group == "site", term == "sd__(Intercept)") %>% pull(estimate)
-#     re_sd <- if (length(re_sd) == 0) NA_real_ else re_sd[1]
-#     
-#     meta_tbl <- tibble(
-#       sp          = SP,
-#       best_family = best_family,
-#       optimizer   = fit_ok[[best_family]]$ctrl,
-#       formula     = paste(deparse(f_support), collapse = ""),
-#       n_obs       = nobs(final_model),
-#       n_sites     = nlevels(df_use$site),
-#       n_years     = dplyr::n_distinct(df_use$year),
-#       zero_prop   = zero_prop,
-#       site_re_sd  = re_sd,
-#       theta       = sigma(final_model),
-#       AIC         = AIC(final_model),
-#       AICc_best    = diag_tbl$AICc[best_row],
-#       dispersion_p = diag_tbl$dispersion_p[best_row],
-#       zero_infl_p  = diag_tbl$zero_infl_p[best_row]
-#     )
-#     
-#     # 5) trend plot (log y-axis + observed yearly means overlaid)
-#     year_seq  <- seq(min(df_use$YearS), max(df_use$YearS), length.out = 200)
-#     pred_grid <- tibble(YearS = year_seq)
-#     for (v in support_vars) pred_grid[[v]] <- 0
-#     pred_grid$site <- df_use$site[1]
-#     pred_grid <- pred_grid %>% mutate(year = min(df_use$year) + YearS)
-#     
-#     pr <- predict(final_model, newdata = pred_grid, type = "link",
-#                   se.fit = TRUE, re.form = NA)
-#     pred_trend <- pred_grid %>%
-#       mutate(fit = exp(pr$fit),
-#              lo  = exp(pr$fit - 1.96 * pr$se.fit),
-#              hi  = exp(pr$fit + 1.96 * pr$se.fit))
-#     
-#     obs_year <- df_use %>% group_by(year) %>%
-#       summarise(mean_files = mean(n_files), .groups = "drop") %>%
-#       filter(mean_files > 0)   # log axis can't show 0
-#     
-#     # dash the trend line when YearS is highly significant (p < 0.001)
-#     yearS_p   <- report_tbl$p.value[report_tbl$term == "YearS"][1]
-#     line_type <- if (!is.na(yearS_p) && yearS_p < 0.05) "solid" else "dashed"
-#     
-#     p <- ggplot(pred_trend, aes(year, fit)) +
-#       geom_ribbon(aes(ymin = lo, ymax = hi), alpha = 0.25) +
-#       geom_line(linewidth = 1, linetype = line_type) +
-#       labs(title = SP, x = "Year", y = "Predicted detections per night") +
-#       theme_classic()
-#     
-#     list(sp = SP, ok = TRUE, reason = NA_character_,
-#          report_tbl = report_tbl, meta_tbl = meta_tbl, diag_tbl = diag_tbl,
-#          support_vars = support_vars, plot = p)
-#     
-#   }, error = function(e) fail(conditionMessage(e)))
-# }
-# 
-# # =====================================================================
-# ## RUN THE LOOP
-# # =====================================================================
-# results <- lapply(species_vec, run_species, data_all = dat_raw)
-# names(results) <- species_vec
-# 
-# ok_flags <- vapply(results, function(x) isTRUE(x$ok), logical(1))
-# message("Converged: ", paste(species_vec[ok_flags], collapse = ", "),
-#         " | Failed: ", paste(species_vec[!ok_flags], collapse = ", "))
-# 
-# # ---------------------------------------------------------------------
-# ## (1) MODEL SUMMARY — one row per species that CONVERGED
-# ##     meta stats + the headline YearS (trend) effect
-# # ---------------------------------------------------------------------
-# models_summary <- bind_rows(lapply(results[ok_flags], function(x) {
-#   yr <- x$report_tbl %>% filter(term == "YearS")
-#   x$meta_tbl %>%
-#     mutate(
-#       YearS_estimate = yr$estimate[1],
-#       YearS_se       = yr$std.error[1],
-#       YearS_p        = yr$p.value[1],
-#       YearS_IRR      = yr$IRR[1],
-#       YearS_IRR_low  = yr$IRR_low[1],
-#       YearS_IRR_high = yr$IRR_high[1]
-#     )
-# }))
-# 
-# # species that did NOT converge, with the reason
-# models_failed <- tibble(
-#   sp     = species_vec[!ok_flags],
-#   reason = vapply(results[!ok_flags],
-#                   function(x) if (is.null(x$reason)) "unknown" else x$reason,
-#                   character(1))
-# )
-# 
-# # ---------------------------------------------------------------------
-# ## (2) COVARIATES USED — which covariates each converged model kept
-# ##     (YearS + (1|site) are in every model, so not listed here)
-# # ---------------------------------------------------------------------
-# 
-# # readable labels for covariates (raw model name -> display name)
-# cov_labels <- c(
-#   eccc_mean_temp  = "Nightly Mean Temperature",
-#   eccc_wind_speed = "Nightly Mean Wind Speed",
-#   mtime2h         = "Moon Above Horizon at Midnight (binary)",
-#   eccc_mean_rh    = "Nightly Mean Relative Humidity",
-#   eccc_precip     = "Nightly Precipitation",
-#   mphase          = "Moon Illumination Fraction",
-#   mtime2h_mphase = "Moon Above Horizon \u00d7 Illumination"
-# )
-# 
-# 
-# covariates_used <- tibble(
-#   sp = species_vec[ok_flags],
-#   covariates = vapply(results[ok_flags], function(x) {
-#     v <- sub("^z_", "", x$support_vars)          # drop the z_ prefix
-#     v <- ifelse(v %in% names(cov_labels), cov_labels[v], v)  # apply readable labels
-#     if (length(v) == 0) NA_character_ else paste(v, collapse = " + ")
-#   }, character(1))
-# )
-# 
-# 
-# # full fixed-effects / IRR table across all converged species (optional but handy)
-# all_report <- bind_rows(lapply(results[ok_flags], `[[`, "report_tbl"))
-# 
-# ## WRITE OUTPUTS
-# # ---------------------------------------------------------------------
-# dir.create("Data", recursive = TRUE, showWarnings = FALSE)
-# write_csv(models_summary,       "Data/bat_trends_models_summary.csv")
-# write_csv(covariates_used,      "Data/bat_trends_covariates_used.csv")
-# write_csv(models_failed,        "Data/bat_trends_models_failed.csv")
-# write_csv(all_report,           "Data/bat_trends_fixed_effects_IRR_all_species.csv")
-# 
-# 
-# ## MULTIPANEL PLOT (converged species)
-# # ---------------------------------------------------------------------
-# plot_list <- lapply(results[ok_flags], `[[`, "plot")
-# if (length(plot_list) > 0) {
-#   multi <- patchwork::wrap_plots(plot_list, ncol = 3) 
-#   ggsave("Figures/Trends/bat_trends_multipanel.png", multi, width = 12, height = 8, dpi = 300)
-#   ggsave("Figures/Trends/bat_trends_multipanel.pdf", multi, width = 12, height = 8)
-# }
+```         
 ```
 
 {{< pagebreak >}}
@@ -692,37 +702,41 @@ The driving transect protocol closely follows that established by @loeb2015Plan.
 
 ## *Manual Verification*
 
-Recordings from 2020 were processed using an automated classifier originally developed by the Government of Alberta called Alberta eBat. Recordings from 2022 and 2023 were classified using Kaleidoscope's Bats of North America 5.4.0 classifier. These automatic classifiers were used to assign species identifications and exclude non-bat recordings.
+All recordings were classified using Kaleidoscope's Bats of North America 5.4.0 or newer classifier. These automatic classifiers were used to assign species identifications and exclude non-bat recordings. Manual verification only occurred in 2024 and 2025 following the processing standards established by the North American Bat Monitoring Program (NABat) [@reichert2018Guide]. Only recordings assigned a species classification by either Kaleidoscope or Sonobat were selected for manual verification. For stationary acoustic monitoring, recordings were manually vetted until at least one recording per species per site per night was confidently identified. For mobile transects, all recordings with automated species classifications were manually vetted. Species identifications were validated against reference call parameters described by @slough2022New, @solick2022Bat, and @szewczak2018Acoustic, adhering to NABat manual vetting standards [@reichert2018Guide].
 
-Full-spectrum recordings from the 2024 and 2025 sampling period were processed using two automatic classifiers: Kaleidoscope's Bats of North America 5.4.0 classifier and Sonobat 3.0's Northwestern British Columbia classifier. Based on documented species ranges and prior detection data [@olsonBat], manual identification efforts focused on seven species: Big Brown Bats (*Eptesicus fuscus*), Eastern Red Bats (*Lasiurus borealis*), Silver-haired Bats (*Lasionycteris noctivagans*), Hoary Bat (*Lasiurus cinereus*), Little Brown Bats (*Myotis lucifugus*), Long-legged Myotis (*Myotis volans*) and Long-eared Myotis (*Myotis evotis*).
+Based on documented species ranges and prior detection data [@olsonBat], manual identification efforts focused on seven species: Big Brown Bats (*Eptesicus fuscus*), Eastern Red Bats (*Lasiurus borealis*), Silver-haired Bats (*Lasionycteris noctivagans*), Hoary Bat (*Lasiurus cinereus*), Little Brown Bats (*Myotis lucifugus*), Long-legged Myotis (*Myotis volans*) and Long-eared Myotis (*Myotis evotis*).
 
-The analysis workflow followed processing standards established by the North American Bat Monitoring Program (NABat) [@reichert2018Guide]. Only recordings assigned a species classification by either Kaleidoscope or Sonobat were selected for manual verification. For stationary acoustic monitoring, recordings were manually vetted until at least one recording per species per site per night was confidently identified. For mobile transects, all recordings with automated species classifications were manually vetted. Species identifications were validated against reference call parameters described by @slough2022New, @solick2022Bat, and @szewczak2018Acoustic, adhering to NABat manual vetting standards [@reichert2018Guide].
+Trends estimates used only autoID results unless the manual verification results indicated a bat recordings was actually noise. This was done to maintain consistency across the 6 years of study, since manual verification only started in 2024.
 
 All the recordings and results can be found on Widltrax under the Banff National Park Organization, in the project called [Bat Community - Long Term Monitoring - NABat - 2020-2025](https://portal.wildtrax.ca/aru/3026).
 
-## *Statistical Trends*
+## *Statistical Analysis*
 
-Trends estimates used only autoID results unless the manual verification results indicated a bat recordings was actually noise. This was done to maintain consistency across the 5 years of study, since manual verification only started in 2024.
+### *Species Summary*
 
-### *Data processing*
+Species presence and nightly activity were calculated from a site-night-species table constructed for all sampled nights. Sampling effort was defined as each unique site-night with acoustic recordings. Mean nightly passes included all recordings with species or couplet labels, with couplets split and counted toward both species.
 
-Species presence and nightly activity were calculated from a site-night-species table constructed for all sampled nights. Sampling effort was defined as each unique site-night with acoustic recordings. Weather covariates were summarized for each sampling night and included mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night and included moon illumination and an indicator of moon position. Environmental covariates were standardized prior to modeling to aid convergence and comparability; the year term was left on its original scale so that trend estimates represent per-year change. Mean nightly passes included all recordings with species or couplet labels, with couplets split and counted toward both species.
+### Covariates
 
-For trend analyses, Little Brown Bat (*Myotis lucifugus)*, Northern Myotis (*M. spetentrionalis*), and Long-legged Myotis (*M. volans)* were pooled into a single Myotis group (40KMyo) due to high similarity in their calls and a correspondingly high potential for autoID misclassification. Nonetheless, most recordings in this group were likely MYLU.
+Weather covariates were summarized for each sampling night and included mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night and included moon illumination and an indicator of moon position. Environmental covariates were standardized prior to modeling to aid convergence and comparability; the year term was left on its original scale so that trend estimates represent per-year change.
 
-### *Statistical analysis*
+Covariate selection was done based on ranked AICc
 
-Statistical trend analyses were conducted for Big Brown Bat (*Eptesicus fuscus)*, Eastern Red Bat (*Lasiurus borealis*), Hoary Bat (*Lasiurus cinereus*), Silver-haired Bat (*Lasyonicteris noctivagas*), and 40KMYO (Myotis grouping). Models were fit to nightly detection counts using negative binomial generalized linear mixed models (GLMMs) with a log link. Sites were included as a random intercept. Candidate model structures included year, Julian date, quadratic Julian date, and species-specific covariates. Trend analyses are presented only for species confirmed to be present at the sites through manual verification and for which models fully converged.
+### *Statistical trends*
+
+Trend analyses were conducted for six taxa: Big Brown Bat (*Eptesicus fuscus*, EPFU), Eastern Red Bat (*Lasiurus borealis*, LABO), Hoary Bat (*Lasiurus cinereus*, LACI), Silver-haired Bat (*Lasionycteris noctivagans*, LANO), Long-eared Myotis (*Myotis evotis*, MYEV), and a 40 kHz *Myotis* complex (40KMyo), the last comprising *M. lucifugus*, *M. volans*, and *M. septentrionalis* summed within each site-night prior to modelling. Only data from stationary acoustics were included in the models. No models were done on driving transects to asses abundance due to the low number of calls. To assess abundance you need a much higher number of sites and transects.
+
+Nightly bat activity was modeled with negative binomial generalized linear mixed models (GLMMs) with a log link fitted in glmmTMB (Version 1.1.12). Each model included a random intercept for site-year deployment (1 \| site:year). This term was used in preference to a site-only intercept because nights within a deployment share a common detector, placement, configuration, and weather window, and are therefore not independent replicates of a year.
+
+Fixed effects comprised a linear year term (years since 2020), a two-level detector-unit term (Wildlife Acoustics SM4 vs. Titley Anabat Swift; Swift as reference): there were 2 different units used across the sampling site and this was to account for potentail differences in detections due to, and a set of environmental covariates selected per taxon.
 
 # Results
 
-Across the 2020-2025 monitoring period, a total of 35,103 bat detections were recorded across the three sites in the Banff NABat grid cell. The Little Brown Bat had the highest number of detections across all years (`r totalspp$total[totalspp$species == "MYLU"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYLU"]`). This was followed by Hoary Bat (`r totalspp$total[totalspp$species == "LACI"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LACI"]`), and Silver-haired Bat (`r totalspp$total[totalspp$species == "LANO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LANO"]`).
+Acoustic monitoring happened for a total of `r length(nightly$date[nightly$Site !="DrivingTransect"])` detector nights across `r length(unique(nightly$Site[nightly$Site !="DrivingTransect"]))` stationary survey locations and `r length(unique(nightly$date[nightly$Site =="DrivingTransect"]))` driving transects over six years (2020–2025) ([@tbl-sppmean]). Survey effort was mostly even within sites and years with sites sampled for a mean of `r round(mean(with(subset(nightly, !(Site == "DrivingTransect")), table(paste(year, Site)))), 1)` nights per year (range: `r min(with(subset(nightly, !(Site == "DrivingTransect")), table(paste(year, Site))))`–`r max(with(subset(nightly, !(Site =="DrivingTransect")), table(paste(year, Site))))` nights per site-year). A total of `r sum(nightly$nightly_total[nightly$Site !="DrivingTransect"])` bat detections were recorded across the three stationary sites and a total of `r sum(nightly$nightly_total[nightly$Site =="DrivingTransect"])` where collected during driving transects in the Banff NABat grid cell.
 
 ## *Species detected and mean nightly activity*
 
-Detected species and nightly bat activity varied among years and sites ([@tbl-sppmean]). In total, up to eight species were detected, with Big Brown Bat (EPFU), Silver-haired Bat (LANO), Hoary Bat (LACI), and Eastern Red Bat (LABO) detected across most years and sites. Myotis species showed more variable detections: Little Brown Myotis (MYLU) was detected frequently, while Long-legged Myotis (MYEV), Western Long-eared Myotis (MYVO), and Long-eared Myotis (MYSE) were detected less consistently.
-
-Nightly bat activity varied across quadrants and years. Activity was highest at the Golf Course and Fenlands sites in 2022--2023, while Upper Hotsprings remained consistently low. Fenlands showed a pronounced peak in 2024, the highest across all years, whereas activity in 2025 was more uniform among all sites. Overall, while several species were consistently detected across the study period, both species presence and nightly activity showed strong spatial and temporal variability. Differences in sampling effort among sites and years likely contributed to some level to this pattern.
+Eight species were recorded across the study. Silver-haired bat (*Lasionycteris noctivagans*) and Little Brown Bat (*Myotis lucifugus*) were detected across every site and year. Northern myotis (*Myotis septentrionalis*) was by far the scarcest species, detected only at Fenlands in 2022 and 2024, and Golf Course in 2023 and 2024 ([@tbl-sppmean]). The Little Brown Bat had the highest number of detections across all years (`r totalspp$total[totalspp$species == "MYLU"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYLU"]`). This was followed by Long-legged Myotis (`r totalspp$total[totalspp$species == "MYVO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYVO"]`), and Eastern Red Bat (`r totalspp$total[totalspp$species == "LABO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LABO"]`).
 
 ```{r}
 #| echo: false
@@ -735,6 +749,7 @@ Nightly bat activity varied across quadrants and years. Activity was highest at 
 
 # --- 6. Render with gt (works for both HTML and PDF) ------------------------
 tbl |>
+  arrange(Site == "DrivingTransect", Year, Site) |>   # <- add this line
   gt() |>
   cols_label(mean_sd = "Mean Nightly Bat Recordings \u00b1 SD") |>
   cols_align(align = "left",   columns = c(Year, Site)) |>
@@ -768,7 +783,7 @@ tbl |>
 
 ## *Species Trends*
 
-Models converged for five species/groups: Big Brown Bat (EPFU), Eastern Red Bat (LABO), Hoary Bat (LACI), Silver-haired Bat (LANO), and the combined Myotis group (40KMyo) (@fig-trends). Significant increases in nightly activity were detected for Big Brown Bat (β = 0.74, SE = 0.09, z = 8.11, p \< 0.001) and Eastern Red Bat (β = 0.81, SE = 0.10, z = 7.88, p \< 0.001). In contrast, no significant temporal trend was detected for Hoary Bat (β = 0.10, SE = 0.09, z = 1.10, p = 0.270), Silver-haired Bat (β = 0.06, SE = 0.13, z = 0.48, p = 0.633), or the combined Myotis group (β = 0.22, SE = 0.12, z = 1.81, p = 0.071).
+Models converged for six species/groups: Big Brown Bat (EPFU), Eastern Red Bat (LABO), Hoary Bat (LACI), Silver-haired Bat (LANO), Long-eared Myotis (MYEV) and the combined 40kHz Myotis group (40KMyo) (@fig-trends).
 
 ```{r}
 #| echo: false
@@ -824,18 +839,17 @@ trend_tbl |>
 
 ```
 
-![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Solid lines indicate significant trends (p \< 0.05), and dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel.png){#fig-trends}
+![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Solid lines indicate significant trends (p \< 0.05), and dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel-det.png){#fig-trends}
 
 # Discussion
 
 Data used for trends only uses autoID from Kaleidoscope, which has been shown to confuse Myotis spp. for LABO. so be careful here.
 
-We could not use recordings from 2020-2021 and had to simply rely on the Alberta eBat resutls. This adds noise to the dataset since only the first 2 years use it. This might be the reason for the perceived increase in the species for EPFU and LABO.\
-Results must be taken with caution because of small sample size, but overall can conclude that bat species at the grid cell are stable.
+Results must be taken with caution because of small sample size, but overall can conclude that bat species at the grid cell are stable. LACI was almost significatna dn showed a decline, this means that close inspection should be followed here. This is no suprise seeing the increasing wind turbine development in the province and elsewhere.
 
-Keep in mind that in the winter of 2026 WNS has been confirmed across the rockies and most importantly in Cadamun cave. This just points to the importance of continues monitoring in the region.
+How does this compare to the NABat abundance results for LABO, LACI and LANO in the whole region?
 
-Potential posiitve from LABO is
+Keep in mind that in the winter of 2026 WNS has been confirmed across the Rockies and most importantly in Cadamun cave. This just points to the importance of continues monitoring in the region. This will likely be important to keep in mind and will mean the decrease of MYLU and MYSE
 
 # Acknowledgements
 
