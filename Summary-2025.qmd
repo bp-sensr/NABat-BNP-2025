@@ -199,7 +199,7 @@ nocite: '@*'
 #     needed <- c("n_files", "YearS", "site", "det_unit", zcand_all)
 #     df_use <- dat0 %>% drop_na(any_of(needed)) %>% droplevels()
 # 
-#     if (nrow(df_use) < 30 || dplyr::n_distinct(df_use$year) < 2)
+#     if (nrow(df_use) < 30 || n_distinct(df_use$year) < 2)
 #       return(fail("insufficient data after NA filtering"))
 # 
 #     zero_prop <- mean(df_use$n_files == 0, na.rm = TRUE)
@@ -344,7 +344,7 @@ nocite: '@*'
 #       formula     = paste(deparse(f_support), collapse = ""),
 #       n_obs       = nobs(final_model),
 #       n_sites     = nlevels(df_use$site),
-#       n_years     = dplyr::n_distinct(df_use$year),
+#       n_years     = n_distinct(df_use$year),
 #       zero_prop   = zero_prop,
 #       site_re_sd  = re_sd,
 #       theta       = sigma(final_model),
@@ -493,9 +493,27 @@ library(base64enc)
 library(flextable)
 library(kableExtra)
 library(knitr)
+library(ggplot2)
+library(htmltools)
+#set these so that the document can render both html and pdf
+is_html <- knitr::pandoc_to("html")
+is_pdf  <- !is_html
+
+#Need to specify figure captions based on the rendering type (PDF or HTML)
+cap_sitesummary <- paste0(
+  "Acoustic bat monitoring sites in Banff. ",
+  "Stationary recording stations are shown as circular markers and ",
+  "driving transect is in red line.",
+  if (is_html) paste0(
+    " Clicking any site opens a summary of species detections, including a ",
+    "table of total detections by species code and a bar chart of means of daily ",
+    "detection totals."
+  ) else ""
+)
 
 #load summary and trend model data
 df <- read.csv("Data/NABat_Banff2020-2025-detector.csv")
+sites <- read.csv("Data/BNP_Meta2020-2025.csv")
 
 models_summary <- read_csv("Data/bat_trends_models_summary.csv")
 covariates_used<- read_csv("Data/bat_trends_covariates_used.csv")
@@ -637,6 +655,281 @@ unique_bat_id_vector <- unique_bat_ids$Code
 
 ```
 
+```{r}
+#| label: site-map
+#| include: false
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+
+# ---- 0. Settings -----------------------------------------------------------
+#make the 40KMyo group in the df
+myo_codes <- c("MYVO", "MYLU", "MYSE", "40KMYO") #make the 40KMyo group
+df1  <- df %>%
+  mutate(species = if_else(species %in% myo_codes, "40KMYO", species)) %>%
+  group_by(species, year, date, x_location_name) %>%
+  summarise(
+    n_files   = sum(n_files,   na.rm = TRUE),   # combine detections across the 4 spp
+    sec_total = sum(sec_total, na.rm = TRUE),   # combine effort (per-species here)
+    across(-c(n_files, sec_total), first),      # covariates are night-level & identical
+    .groups = "drop"
+  )
+df1 <- df1 %>%
+  mutate(Site = site, date = as.Date(date))
+# ---- Species to include (edit this to taste) ----
+# Excludes non-species buckets: HIF, LOWF, NOID, MYOTIS (generic)
+target_species <- c("EPFU","LABO","LACI","LANO","40KMYO","MYEV")
+# Fixed colour per species so every pie is consistent
+species_pal <- c( EPFU = "#1b9e77", LABO = "#d95f02", LACI = "#7570b3", LANO = "#e7298a", MYEV = "#e6ab02", '40KMYO' = "#1f78b4")
+
+pal_get = function(nm) {
+  v = unname(species_pal[nm])
+  ifelse(is.na(v), "#bbbbbb", v)
+}
+
+# ---- 1. Site table ---------------------------------------------------------
+
+map_sites = sites |>
+  transmute(
+    Site    = Location.Name,
+    Lat     = Latitude,
+    Long    = Longitude,
+    Comment = NA_character_    # no Comment field in this metadata; kept for parity
+  ) |>
+  distinct(Site, .keep_all = TRUE)   # metadata has one row per site x year
+
+# ---- 2. Aggregate detections to one row per site (sum across days/years) ----
+
+site_species = df1 |>
+  filter(species %in% target_species) |>
+  group_by(Site, species) |>
+  summarise(total = sum(n_files, na.rm = TRUE), .groups = "drop") |>
+  pivot_wider(names_from = species, values_from = total, values_fill = 0)
+
+# guarantee every species column exists, in a fixed order
+for (s in setdiff(target_species, names(site_species))) site_species[[s]] = 0
+site_species = site_species[, c("Site", target_species)]
+
+# ---- 2b. Calendar-day totals per site (for the graph tab) ------------------
+# One "night" = one Site x date. Your detector grid carries explicit zeros,
+# so n_distinct(date) is a true count of nights surveyed on that calendar day.
+
+site_day = df1 |>
+  filter(species %in% target_species) |>
+  group_by(Site, date) |>
+  summarise(night_total = sum(n_files, na.rm = TRUE), .groups = "drop") |>
+  mutate(md = format(date, "%m-%d")) |>
+  group_by(Site, md) |>
+  summarise(
+    total  = sum(night_total),
+    nights = n_distinct(date),
+    .groups = "drop"
+  ) |>
+  mutate(
+    day   = as.Date(paste0("2001-", md)),   # dummy non-leap year
+    value = total / nights                  # mean recordings per surveyed night
+  ) |>
+  arrange(Site, day)
+
+# common x-range so sites are comparable to one another
+day_xlim = range(site_day$day)
+day_ylab = "Recordings / night"
+
+# ---- 3. Join detections onto the site locations ----------------------------
+
+map_data = map_sites |>
+  left_join(site_species, by = "Site") |>
+  mutate(across(all_of(target_species), ~ tidyr::replace_na(.x, 0)))
+
+
+# ---- 4. Pie chart SVG -----------------------------------------------------
+
+make_pie_svg = function(counts, width = 340L, height = 200L) {
+  
+  counts = counts[counts > 0]
+  if (length(counts) == 0) {
+    return(sprintf(
+      '<svg width="%d" height="%d" xmlns="http://www.w3.org/2000/svg"><text x="%d" y="%d" font-size="12" fill="#666" text-anchor="middle" font-family="sans-serif">No detections</text></svg>',
+      width, height, width %/% 2L, height %/% 2L))
+  }
+  
+  counts = sort(counts, decreasing = TRUE)
+  tot    = sum(counts)
+  frac   = counts / tot
+  nm     = names(counts)
+  
+  cx = 86; cy = height / 2 - 6; r = 70
+  
+  # slice geometry: start at 12 o'clock, sweep clockwise
+  a1 = -pi / 2 + 2 * pi * cumsum(frac)
+  a0 = c(-pi / 2, utils::head(a1, -1))
+  
+  if (length(counts) == 1) {
+    slices = sprintf(
+      '<circle cx="%f" cy="%f" r="%f" fill="%s" stroke="#ffffff" stroke-width="1"><title>%s: %s (100.0%%)</title></circle>',
+      cx, cy, r, pal_get(nm[1]), nm[1], format(counts[1], big.mark = ","))
+  } else {
+    slices = paste(vapply(seq_along(counts), function(i) {
+      x0 = cx + r * cos(a0[i]); y0 = cy + r * sin(a0[i])
+      x1 = cx + r * cos(a1[i]); y1 = cy + r * sin(a1[i])
+      large = as.integer((a1[i] - a0[i]) > pi)
+      sprintf(
+        '<path d="M %f %f L %f %f A %f %f 0 %d 1 %f %f Z" fill="%s" stroke="#ffffff" stroke-width="1"><title>%s: %s (%.1f%%)</title></path>',
+        cx, cy, x0, y0, r, r, large, x1, y1,
+        pal_get(nm[i]), nm[i], format(counts[i], big.mark = ","), 100 * frac[i])
+    }, character(1)), collapse = "")
+  }
+  
+  # legend, vertically centred beside the pie
+  lx = 174; rh = 17
+  ly = cy - (length(counts) * rh) / 2 + 12
+  legend = paste(vapply(seq_along(counts), function(i) {
+    yy = ly + (i - 1) * rh
+    paste0(
+      sprintf('<rect x="%f" y="%f" width="10" height="10" rx="2" fill="%s" stroke="#999999" stroke-width="0.5"/>',
+              lx, yy - 9, pal_get(nm[i])),
+      sprintf('<text x="%f" y="%f" font-size="10" fill="#333333" font-family="sans-serif"><tspan font-weight="bold">%s</tspan>  %s (%.1f%%)</text>',
+              lx + 15, yy, nm[i], format(counts[i], big.mark = ","), 100 * frac[i])
+    )
+  }, character(1)), collapse = "")
+  
+  total_txt = sprintf(
+    '<text x="%f" y="%f" font-size="11" font-weight="bold" fill="#2c3e50" text-anchor="middle" font-family="sans-serif">Total bats: %s</text>',
+    cx, height - 4, format(tot, big.mark = ","))
+  
+  sprintf('<svg width="%d" height="%d" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">%s%s%s</svg>',
+          width, height, width, height, slices, legend, total_txt)
+}
+
+# ---- 5. Calendar-day bar chart SVG ----------------------------------------
+
+make_dayseries_svg = function(days, values, xlim, width = 340L, height = 237L,
+                              font_size = 9, ylab = "Recordings / night",
+                              title = c("Mean nightly detections by date,",
+                                        "averaged across survey years")) {
+  
+  ml = 46; mr = 12; mt = 42; mb = 50
+  pw = width - ml - mr; ph = height - mt - mb
+  n  = length(values)
+  
+  title_txt = paste(vapply(seq_along(title), function(i) sprintf(
+    '<text x="%f" y="%f" font-size="11" font-weight="bold" fill="#2c3e50" text-anchor="middle" font-family="sans-serif">%s</text>',
+    width / 2, 15 + (i - 1) * 13, htmltools::htmlEscape(title[i])), character(1)), collapse = "")
+  
+  if (n == 0) {
+    return(sprintf(
+      '<svg width="%d" height="%d" xmlns="http://www.w3.org/2000/svg">%s<text x="%d" y="%d" font-size="12" fill="#666" text-anchor="middle" font-family="sans-serif">No sampling data</text></svg>',
+      width, height, title_txt, width %/% 2L, height %/% 2L))
+  }
+  
+  fmt = function(v) formatC(v, format = "f", digits = 1, big.mark = ",")
+  
+  # y scale
+  maxv  = max(values)
+  ticks = if (maxv == 0) c(0, 1) else pretty(c(0, maxv), n = 4)
+  ytop  = max(ticks); if (ytop == 0) ytop = 1
+  
+  grid = ""
+  for (t in ticks) {
+    yy = mt + ph - (t / ytop) * ph
+    grid = paste0(grid,
+                  sprintf('<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#e6e6e6" stroke-width="1"/>',
+                          ml, yy, ml + pw, yy),
+                  sprintf('<text x="%f" y="%f" font-size="%d" fill="#555" text-anchor="end" font-family="sans-serif">%s</text>',
+                          ml - 5, yy + 3, font_size, format(t, big.mark = ",")))
+  }
+  
+  axes = sprintf(
+    '<line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#888" stroke-width="1"/><line x1="%f" y1="%f" x2="%f" y2="%f" stroke="#888" stroke-width="1"/>',
+    ml, mt, ml, mt + ph, ml, mt + ph, ml + pw, mt + ph)
+  
+  # x scale: true calendar spacing on a shared range, so gaps read as gaps
+  span = as.numeric(xlim[2] - xlim[1]); if (span <= 0) span = 1
+  xpos = function(d) ml + (as.numeric(d - xlim[1]) / span) * pw
+  bw   = max(2, (pw / (span + 1)) * 0.8)
+  
+  bars = paste(vapply(seq_len(n), function(i) {
+    cxx = xpos(days[i]); bx = cxx - bw / 2
+    bh  = (values[i] / ytop) * ph; by = mt + ph - bh
+    sprintf('<rect x="%f" y="%f" width="%f" height="%f" fill="#2c7fb8"><title>%s: %s</title></rect>',
+            bx, by, bw, bh, format(days[i], "%b %d"), fmt(values[i]))
+  }, character(1)), collapse = "")
+  
+  # thin the x labels so ~8 fit without colliding
+  lab_i = seq(1, n, by = max(1, ceiling(n / 8)))
+  xlab  = paste(vapply(lab_i, function(i) {
+    cxx = xpos(days[i])
+    sprintf('<text x="%f" y="%f" font-size="%d" fill="#555" text-anchor="end" font-family="sans-serif" transform="rotate(-40 %f %f)">%s</text>',
+            cxx, mt + ph + 12, font_size, cxx, mt + ph + 12, format(days[i], "%b %d"))
+  }, character(1)), collapse = "")
+  
+  ytitle = sprintf(
+    '<text x="11" y="%f" font-size="%d" fill="#555" text-anchor="middle" font-family="sans-serif" transform="rotate(-90 11 %f)">%s</text>',
+    mt + ph / 2, font_size, mt + ph / 2, ylab)
+  
+  sprintf('<svg width="%d" height="%d" viewBox="0 0 %d %d" xmlns="http://www.w3.org/2000/svg">%s%s%s%s%s%s</svg>',
+          width, height, width, height, title_txt, grid, axes, bars, xlab, ytitle)
+}
+
+# ---- 6. Build the popup HTML ----------------------------------------------
+
+build_popup = function(site_name, counts, comment = NA, pie_svg = "", ts_svg = "") {
+  
+  comment_html = ""
+  if (!is.na(comment) && nzchar(trimws(comment))) {
+    comment_html = sprintf(
+      '<div style="font-style:italic;font-size:11px;color:#555;margin-bottom:6px;">%s</div>',
+      htmltools::htmlEscape(trimws(comment)))
+  }
+  
+  # ---- tab switcher (inline handler; no <script> needed) ----
+  tab_onclick = "(function(b){var r=b.closest('.bat-popup');var t=b.getAttribute('data-target');var tabs=r.querySelectorAll('.bat-tab');for(var i=0;i<tabs.length;i++){tabs[i].style.display=(tabs[i].getAttribute('data-tab')===t)?'block':'none';}var bs=r.querySelectorAll('.bat-tabbtn');for(var j=0;j<bs.length;j++){var on=bs[j].getAttribute('data-target')===t;bs[j].style.background=on?'#3498db':'#e8eef4';bs[j].style.color=on?'#fff':'#2c3e50';}})(this)"
+  btn_base = "flex:1;padding:5px 8px;font-size:12px;font-family:sans-serif;border:1px solid #b8c4d0;cursor:pointer;text-align:center;"
+  
+  tabs_html = sprintf(
+    '<div style="display:flex;margin-bottom:6px;"><div class="bat-tabbtn" data-target="pie" style="%sbackground:#3498db;color:#fff;border-radius:4px 0 0 4px;" onclick="%s">Total Species Composition</div><div class="bat-tabbtn" data-target="graph" style="%sbackground:#e8eef4;color:#2c3e50;border-radius:0 4px 4px 0;" onclick="%s">Mean Detections by Date</div></div>',
+    btn_base, tab_onclick, btn_base, tab_onclick)
+  
+  content_html = sprintf(
+    '<div class="bat-tab" data-tab="pie" style="display:block;">%s</div><div class="bat-tab" data-tab="graph" style="display:none;">%s</div>',
+    pie_svg, ts_svg)
+  
+  sprintf(
+    '<div class="bat-popup" style="font-family:sans-serif;min-width:340px;"><div style="font-weight:bold;font-size:14px;margin-bottom:4px;">%s</div>%s%s%s</div>',
+    htmltools::htmlEscape(site_name), comment_html, tabs_html, content_html)
+}
+
+map_data$popup = vapply(seq_len(nrow(map_data)), function(i) {
+  site   = map_data$Site[i]
+  counts = setNames(as.numeric(unlist(map_data[i, target_species])), target_species)
+  
+  sd_i    = site_day[site_day$Site == site, ]
+  sd_i    = sd_i[order(sd_i$day), ]
+  pie_svg = make_pie_svg(counts)
+  ts_svg  = make_dayseries_svg(sd_i$day, sd_i$value, xlim = day_xlim, ylab = day_ylab)
+  
+  build_popup(site, counts, map_data$Comment[i], pie_svg, ts_svg)
+}, character(1))
+
+# ---- 7. Build the map ------------------------------------------------------
+
+m = leaflet(map_data) |>
+  addProviderTiles(providers$CartoDB.Positron) |>
+  addCircleMarkers(
+    lng = ~Long, lat = ~Lat,
+    radius = 6, color = "#2c3e50", weight = 1,
+    fillColor = "#3498db", fillOpacity = 0.9,
+    popup = ~popup, label = ~Site,
+    popupOptions = popupOptions(maxWidth = 400)
+  ) |>
+  fitBounds(
+    min(map_data$Long, na.rm = TRUE), min(map_data$Lat, na.rm = TRUE),
+    max(map_data$Long, na.rm = TRUE), max(map_data$Lat, na.rm = TRUE)
+  )
+m
+```
+
 ```         
 ```
 
@@ -733,6 +1026,35 @@ Fixed effects comprised a linear year term (years since 2020), a two-level detec
 # Results
 
 Acoustic monitoring happened for a total of `r length(nightly$date[nightly$Site !="DrivingTransect"])` detector nights across `r length(unique(nightly$Site[nightly$Site !="DrivingTransect"]))` stationary survey locations and `r length(unique(nightly$date[nightly$Site =="DrivingTransect"]))` driving transects over six years (2020–2025) ([@tbl-sppmean]). Survey effort was mostly even within sites and years with sites sampled for a mean of `r round(mean(with(subset(nightly, !(Site == "DrivingTransect")), table(paste(year, Site)))), 1)` nights per year (range: `r min(with(subset(nightly, !(Site == "DrivingTransect")), table(paste(year, Site))))`–`r max(with(subset(nightly, !(Site =="DrivingTransect")), table(paste(year, Site))))` nights per site-year). A total of `r sum(nightly$nightly_total[nightly$Site !="DrivingTransect"])` bat detections were recorded across the three stationary sites and a total of `r sum(nightly$nightly_total[nightly$Site =="DrivingTransect"])` where collected during driving transects in the Banff NABat grid cell.
+
+```{r}
+#| label: fig-sites
+#| echo: false
+#| warning: false
+#| message: false
+#| out-width: 100%
+#| fig-cap: !expr cap_sitesummary
+
+if (is_html) {
+  # Interactive Leaflet widget for the HTML output
+  m
+} else {
+  # LaTeX/PDF cannot embed an interactive widget, so capture a static
+  # screenshot of the map with mapshot2() and insert the PNG instead.
+  if (!dir.exists("Figures")) dir.create("Figures")
+  map_png <- "Figures/site_summary_map.png"
+  
+  mapview::mapshot2(
+    m,
+    file    = map_png,
+    vwidth  = 900,   # render width in px  (controls aspect ratio)
+    vheight = 650,   # render height in px
+    delay   = 1.5    # give the basemap tiles time to load before capture
+  )
+  
+  knitr::include_graphics(map_png)
+}
+```
 
 ## *Species detected and mean nightly activity*
 
