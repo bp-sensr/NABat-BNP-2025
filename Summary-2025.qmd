@@ -1,6 +1,6 @@
 ---
 title: Banff National Park Activity Trends
-subtitle: Activity Trends 2020-25
+subtitle: Activity Trends 2020-2025
 format:
   html:
     grid:
@@ -19,6 +19,7 @@ format:
     toc-depth: 3
     number-sections: true
     colorlinks: true
+    toccolor: black
     geometry:
       - margin=1in
     papersize: letter
@@ -48,7 +49,7 @@ nocite: '@*'
 #| eval: true
 #| warning: false
 #| message: false
-
+# 
 # #This is for reference only. The report does not use this code to create anything. This is the code used to create and select the best fit model. If need can uncomment the whole section and run code.
 # 
 # suppressPackageStartupMessages({
@@ -142,7 +143,7 @@ nocite: '@*'
 # }
 # 
 # # --------------------- READ DATA ONCE (not per species) --------------
-# dat_raw <- read.csv("Data/NABat_Banff2020-2025-detector.csv")
+# dat_raw <- read.csv("Data/NABat_Banff2020-2025-detectorClean.csv")
 # dat_raw <- dat_raw %>%
 #   mutate(
 #     date    = as.Date(date),
@@ -362,7 +363,7 @@ nocite: '@*'
 #     pred_grid$year      <- df_use$year[1]   # real level so site:year exists; re.form = NA zeroes it
 #     pred_grid$det_unit  <- factor("Swift", levels = levels(df_use$det_unit))
 #     pred_grid$year_plot <- min(df_use$year) + year_seq
-#     
+# 
 #     pr <- predict(final_model, newdata = pred_grid, type = "link",
 #                   se.fit = TRUE, re.form = NA)
 #     pred_trend <- pred_grid %>%
@@ -470,8 +471,8 @@ nocite: '@*'
 # plot_list <- lapply(results[ok_flags], `[[`, "plot")
 # if (length(plot_list) > 0) {
 #   multi <- patchwork::wrap_plots(plot_list, ncol = 3)
-#   ggsave("Figures/Trends/bat_trends_multipanel-det.png", multi, width = 12, height = 8, dpi = 300)
-#   ggsave("Figures/Trends/bat_trends_multipanel-det.pdf", multi, width = 12, height = 8)
+#   ggsave("Figures/Trends/bat_trends_multipanel.png", multi, width = 12, height = 8, dpi = 300)
+#   ggsave("Figures/Trends/bat_trends_multipanel.pdf", multi, width = 12, height = 8)
 # }
 ```
 
@@ -495,6 +496,7 @@ library(kableExtra)
 library(knitr)
 library(ggplot2)
 library(htmltools)
+library(sf)
 #set these so that the document can render both html and pdf
 is_html <- knitr::pandoc_to("html")
 is_pdf  <- !is_html
@@ -502,8 +504,8 @@ is_pdf  <- !is_html
 #Need to specify figure captions based on the rendering type (PDF or HTML)
 cap_sitesummary <- paste0(
   "Acoustic bat monitoring sites in Banff. ",
-  "Stationary recording stations are shown as circular markers and ",
-  "driving transect is in red line.",
+  "Stationary recording stations are shown as blue circular markers and ",
+  "driving transect is in red line. The boundary of the grid cell is shown in dashed grey line.",
   if (is_html) paste0(
     " Clicking any site opens a summary of species detections, including a ",
     "table of total detections by species code and a bar chart of means of daily ",
@@ -518,17 +520,29 @@ sites <- read.csv("Data/BNP_Meta2020-2025.csv")
 models_summary <- read_csv("Data/bat_trends_models_summary.csv")
 covariates_used<- read_csv("Data/bat_trends_covariates_used.csv")
 
+#---Update site names-----------------------------------------------------------
 
-#FORMAT THE NIGHTLY SUMMARY TABLE
-#---Load the data-----------------------------------------------------------
+sites <- sites |>
+  mutate(Location.Name = case_when(
+    Location.Name == "148842_NW_01" ~ "Fenlands",
+    Location.Name == "148842_NE_01" ~ "Golf Course",
+    Location.Name == "148842_SW_01" ~ "Upper Hotsprings",
+    Location.Name == "DrivingTransect" ~ "Driving Transect",
+    TRUE ~ Location.Name   # keeps any unmapped values as-is
+  ))
 
-df <- df |>
+df<- df |>
   mutate(Site = case_when(
     x_location_name == "148842_NW_01" ~ "Fenlands",
     x_location_name == "148842_NE_01" ~ "Golf Course",
     x_location_name == "148842_SW_01" ~ "Upper Hotsprings",
+    x_location_name == "DrivingTransect" ~ "Driving Transect",
     TRUE ~ x_location_name   # keeps any unmapped values as-is
   ))
+
+
+#FORMAT THE NIGHTLY SUMMARY TABLE
+
 #--- 1. Total species recordings and nightly means for reporting---------------
 totalspp <- df |>
   group_by(species) |>
@@ -668,7 +682,7 @@ unique_bat_id_vector <- unique_bat_ids$Code
 myo_codes <- c("MYVO", "MYLU", "MYSE", "40KMYO") #make the 40KMyo group
 df1  <- df %>%
   mutate(species = if_else(species %in% myo_codes, "40KMYO", species)) %>%
-  group_by(species, year, date, x_location_name) %>%
+  group_by(species, year, date, Site) %>%
   summarise(
     n_files   = sum(n_files,   na.rm = TRUE),   # combine detections across the 4 spp
     sec_total = sum(sec_total, na.rm = TRUE),   # combine effort (per-species here)
@@ -676,7 +690,7 @@ df1  <- df %>%
     .groups = "drop"
   )
 df1 <- df1 %>%
-  mutate(Site = site, date = as.Date(date))
+  mutate(date = as.Date(date))
 # ---- Species to include (edit this to taste) ----
 # Excludes non-species buckets: HIF, LOWF, NOID, MYOTIS (generic)
 target_species <- c("EPFU","LABO","LACI","LANO","40KMYO","MYEV")
@@ -874,13 +888,21 @@ make_dayseries_svg = function(days, values, xlim, width = 340L, height = 237L,
 
 # ---- 6. Build the popup HTML ----------------------------------------------
 
-build_popup = function(site_name, counts, comment = NA, pie_svg = "", ts_svg = "") {
+build_popup = function(site_name, counts, comment = NA, pie_svg = "", ts_svg = "",
+                       show_graph = TRUE) {
   
   comment_html = ""
   if (!is.na(comment) && nzchar(trimws(comment))) {
     comment_html = sprintf(
       '<div style="font-style:italic;font-size:11px;color:#555;margin-bottom:6px;">%s</div>',
       htmltools::htmlEscape(trimws(comment)))
+  }
+  
+  # Pie-only popup (used for the driving-transect line): no tabs, no date graph
+  if (!isTRUE(show_graph)) {
+    return(sprintf(
+      '<div class="bat-popup" style="font-family:sans-serif;min-width:340px;"><div style="font-weight:bold;font-size:14px;margin-bottom:4px;">%s</div>%s<div>%s</div></div>',
+      htmltools::htmlEscape(site_name), comment_html, pie_svg))
   }
   
   # ---- tab switcher (inline handler; no <script> needed) ----
@@ -909,23 +931,73 @@ map_data$popup = vapply(seq_len(nrow(map_data)), function(i) {
   pie_svg = make_pie_svg(counts)
   ts_svg  = make_dayseries_svg(sd_i$day, sd_i$value, xlim = day_xlim, ylab = day_ylab)
   
-  build_popup(site, counts, map_data$Comment[i], pie_svg, ts_svg)
+  is_transect_i = grepl("Driving Transect", site, ignore.case = TRUE)
+  build_popup(site, counts, map_data$Comment[i], pie_svg, ts_svg,
+              show_graph = !is_transect_i)
 }, character(1))
 
-# ---- 7. Build the map ------------------------------------------------------
+# ---- 7. Load shape files -----------------------------
+transect_line = st_read("Data/BanffDrivingTransect.shp", quiet = TRUE)
+transect_line = st_zm(transect_line, drop = TRUE, what = "ZM")   # leaflet chokes on Z/M
+transect_line = st_transform(transect_line, 4326)                # leaflet needs WGS84
 
-m = leaflet(map_data) |>
+gridboundary =st_read("Data/148842GridBoundary.shp", quiet =TRUE)
+gridboundary = st_transform(gridboundary, 4326)
+
+# ---- 8. Build the map ------------------------------------------------------
+
+is_transect  = grepl("Driving Transect", map_data$Site, ignore.case = TRUE)
+point_data   = map_data[!is_transect, ]
+transect_row = map_data[is_transect, ]
+
+# bounds that also include the line's extent
+line_bb = st_bbox(transect_line)
+grid_bb = st_bbox(gridboundary)
+all_lng = c(map_data$Long, line_bb[["xmin"]], line_bb[["xmax"]],
+            grid_bb[["xmin"]], grid_bb[["xmax"]])
+all_lat = c(map_data$Lat,  line_bb[["ymin"]], line_bb[["ymax"]],
+            grid_bb[["ymin"]], grid_bb[["ymax"]])
+
+m = leaflet() |>
   addProviderTiles(providers$CartoDB.Positron) |>
-  addCircleMarkers(
-    lng = ~Long, lat = ~Lat,
-    radius = 6, color = "#2c3e50", weight = 1,
-    fillColor = "#3498db", fillOpacity = 0.9,
-    popup = ~popup, label = ~Site,
-    popupOptions = popupOptions(maxWidth = 400)
-  ) |>
+  addPolygons(
+    data = gridboundary,
+    fill = FALSE,
+    color = "#2c3e50", weight = 2, opacity = 0.8,
+    dashArray = "6,4",
+    label = "GRTS cell 148842",
+    options = pathOptions(interactive = FALSE)   # clicks pass through to markers
+  )
+
+# point sites: circle markers with the full (pie + date) popup
+if (nrow(point_data) > 0) {
+  m = m |>
+    addCircleMarkers(
+      data = point_data,
+      lng = ~Long, lat = ~Lat,
+      radius = 6, color = "#2c3e50", weight = 1,
+      fillColor = "#3498db", fillOpacity = 0.9,
+      popup = ~popup, label = ~Site,
+      popupOptions = popupOptions(maxWidth = 400)
+    )
+}
+
+# driving transect: red line with the pie-only popup
+if (nrow(transect_row) > 0) {
+  m = m |>
+    addPolylines(
+      data = transect_line,
+      color = "red", weight = 3, opacity = 0.9,
+      popup = transect_row$popup[1],
+      label = transect_row$Site[1],
+      popupOptions = popupOptions(maxWidth = 400)
+    )
+}
+
+m = m |>
   fitBounds(
-    min(map_data$Long, na.rm = TRUE), min(map_data$Lat, na.rm = TRUE),
-    max(map_data$Long, na.rm = TRUE), max(map_data$Lat, na.rm = TRUE)
+    min(all_lng, na.rm = TRUE), min(all_lat, na.rm = TRUE),
+    max(all_lng, na.rm = TRUE), max(all_lat, na.rm = TRUE)
   )
 m
 ```
@@ -983,19 +1055,81 @@ Acoustic recording is a cost-effective method for monitoring bat populations acr
 
 # Methods
 
-## *2025 Deployments*
+## *Deployments*
 
 ### Stationary Surveys
 
-Banff biologists deployed three stationary bat detectors in strategically selected bat habitat in 3 distinct quadrants within the NABat grid cell (@fig-sites). Stationary sites were deployed from June 24 until July 3, 2025. Deployment set up followed the standards set by @loeb2015Plan.
+Banff biologists deployed three stationary bat detectors in strategically selected bat habitat across three distinct quadrants within the NABat grid cell (@fig-sites). These stationary sites were deployed consistently every year from 2020 to 2025, with detectors set out between June 24–30 and retrieved between July 2–23 ( @tbl-deployments). The comparable deployment windows across years allow for interannual comparison. Deployment setup followed the standards established by @loeb2015Plan. Titley Swift units were used in most years, except in 2020 and 2024, when Wildlife Acoustics SM4 units were deployed instead.
 
 ### Transect Surveys
 
-The driving transect protocol closely follows that established by @loeb2015Plan. Two replicates of a mobile transect are driven at 30 -- 35km/h with a bat detector on the roof to record bats along the road. Transects are conducted on the nights of June 24 and July 1 2025 ( @fig-sites).
+The driving transect protocol closely follows that established by @loeb2015Plan. Between one and three replicates of a mobile transect were driven at 30–35 km/h with a bat detector mounted on the vehicle roof to record bats along the road (@fig-sites). Transects were conducted during the same period that the stationary acoustic units were deployed (@tbl-deployments). Titley Walkabout units were used for all transect deployments across all years.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| tbl-cap: Deployments throughout the 6 years of this monitoring
+#| tbl-pos: H
+#| label: tbl-deployments
+
+deploy_tbl <- sites |>
+  mutate(
+    start    = as.Date(Survey.Start.Time),
+    end      = as.Date(Survey.End.Time),
+    transect = grepl("transect", Location.Name, ignore.case = TRUE)
+  ) |>
+  arrange(transect, Location.Name, SurveyYear, start) |>
+  mutate(Location.Name = factor(Location.Name, levels = unique(Location.Name))) |>
+  transmute(
+    Location.Name,
+    Year   = SurveyYear,
+    Detector = det_unit,
+    Start  = format(start, "%d %b"),
+    End    = format(end,   "%d %b"),
+    Nights = if_else(transect, 1L, as.integer(end - start-1))
+  )
+
+
+gt_deploy <- deploy_tbl |>
+  gt(groupname_col = "Location.Name") |>
+  cols_align(align = "center", columns = c(Year, Start, End, Nights)) |>
+  tab_style(
+    style     = cell_text(weight = "bold"),
+    locations = cells_row_groups()
+  ) |>
+  tab_style(
+    style = list(cell_text(weight = "bold"),
+                 cell_fill(color = "#f2f2f2")),
+    locations = cells_column_labels()
+  ) |>
+  opt_row_striping() |>
+  tab_options(
+    table.font.size            = px(15),
+    data_row.padding           = px(3),
+    data_row.padding.horizontal = px(12),
+    table.border.top.style     = "hidden",
+    table.border.bottom.style  = "hidden",
+    column_labels.border.top.style    = "solid",
+    column_labels.border.bottom.style = "solid",
+    row.striping.background_color = "#fafafa"
+  )
+#save the table so it can render nicer in a pdf
+gtsave(gt_deploy, "Figures/deploy_table.png", vwidth = 1000, zoom = 2.5)
+
+if (knitr::is_html_output()) {
+  gt_deploy
+} else {
+  knitr::include_graphics("Figures/deploy_table.png")
+}
+
+```
 
 ## *Manual Verification*
 
-All recordings were classified using Kaleidoscope's Bats of North America 5.4.0 or newer classifier. These automatic classifiers were used to assign species identifications and exclude non-bat recordings. Manual verification only occurred in 2024 and 2025 following the processing standards established by the North American Bat Monitoring Program (NABat) [@reichert2018Guide]. Only recordings assigned a species classification by either Kaleidoscope or Sonobat were selected for manual verification. For stationary acoustic monitoring, recordings were manually vetted until at least one recording per species per site per night was confidently identified. For mobile transects, all recordings with automated species classifications were manually vetted. Species identifications were validated against reference call parameters described by @slough2022New, @solick2022Bat, and @szewczak2018Acoustic, adhering to NABat manual vetting standards [@reichert2018Guide].
+All recordings were classified using the Kaleidoscope Pro Bats of North America 5.4.0 classifier or newer. Automatic classification was used to assign species identifications and to exclude non-bat recordings. Manual verification of classifications was conducted for the 2024 and 2025 seasons only, following the processing standards established by the North American Bat Monitoring Program (NABat) [@reichert2018Guide]. Only recordings assigned a species classification by either Kaleidoscope were selected for manual verification. For stationary acoustic monitoring, recordings were manually vetted until at least one recording per species per site per night was confidently identified. For mobile transects, all recordings with automated species classifications were manually vetted. Species identifications were validated against reference call parameters described by @slough2022New, @solick2022Bat, and @szewczak2018Acoustic, adhering to NABat manual vetting standards [@reichert2018Guide].
 
 Based on documented species ranges and prior detection data [@olsonBat], manual identification efforts focused on seven species: Big Brown Bats (*Eptesicus fuscus*), Eastern Red Bats (*Lasiurus borealis*), Silver-haired Bats (*Lasionycteris noctivagans*), Hoary Bat (*Lasiurus cinereus*), Little Brown Bats (*Myotis lucifugus*), Long-legged Myotis (*Myotis volans*) and Long-eared Myotis (*Myotis evotis*).
 
@@ -1005,27 +1139,89 @@ All the recordings and results can be found on Widltrax under the Banff National
 
 ## *Statistical Analysis*
 
-### *Species Summary*
+### *Species summaries*
 
-Species presence and nightly activity were calculated from a site-night-species table constructed for all sampled nights. Sampling effort was defined as each unique site-night with acoustic recordings. Mean nightly passes included all recordings with species or couplet labels, with couplets split and counted toward both species.
+Species presence and nightly activity were summarized from a site–night–species table constructed for all sampled nights. Sampling effort was defined as the number of unique site-nights on which a detector was recording. Mean nightly passes include all recordings assigned a species or couplet label; couplet-labelled files were counted toward both member species.
 
-### Covariates
+### *Environmental covariates*
 
-Weather covariates were summarized for each sampling night and included mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night and included moon illumination and an indicator of moon position. Environmental covariates were standardized prior to modeling to aid convergence and comparability; the year term was left on its original scale so that trend estimates represent per-year change.
+Weather data were obtained from Environment and Climate Change Canada (ECCC) stations using the `weathercan` package (Version 1.0.0) in R and summarized for each sampling night as mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night using the `suncalc` package (Version 0.5.1) and included moon illumination and an index of moon position. All environmental covariates were standardized (z-scored) prior to modelling to aid convergence and comparability. The year term was left on its original scale so that trend estimates represent change per year.
 
-Covariate selection was done based on ranked AICc
+### *Trend models*
 
-### *Statistical trends*
+#### **Data included**
 
-Trend analyses were conducted for six taxa: Big Brown Bat (*Eptesicus fuscus*, EPFU), Eastern Red Bat (*Lasiurus borealis*, LABO), Hoary Bat (*Lasiurus cinereus*, LACI), Silver-haired Bat (*Lasionycteris noctivagans*, LANO), Long-eared Myotis (*Myotis evotis*, MYEV), and a 40 kHz *Myotis* complex (40KMyo), the last comprising *M. lucifugus*, *M. volans*, and *M. septentrionalis* summed within each site-night prior to modelling. Only data from stationary acoustics were included in the models. No models were done on driving transects to asses abundance due to the low number of calls. To assess abundance you need a much higher number of sites and transects.
+Trend models used stationary detector data only. Transect data were not modelled because the number of recorded call sequences was too low to support abundance estimation, which requires substantially more sites (grid cells) and transect replicates than were available here. These data will nonetheless be useful for modelling species abundance at provincial or regional scales.
 
-Nightly bat activity was modeled with negative binomial generalized linear mixed models (GLMMs) with a log link fitted in glmmTMB (Version 1.1.12). Each model included a random intercept for site-year deployment (1 \| site:year). This term was used in preference to a site-only intercept because nights within a deployment share a common detector, placement, configuration, and weather window, and are therefore not independent replicates of a year.
+#### **Species**
 
-Fixed effects comprised a linear year term (years since 2020), a two-level detector-unit term (Wildlife Acoustics SM4 vs. Titley Anabat Swift; Swift as reference): there were 2 different units used across the sampling site and this was to account for potentail differences in detections due to, and a set of environmental covariates selected per taxon.
+Trends were estimated for six taxa: Big Brown Bat (*Eptesicus fuscus*, EPFU), Eastern Red Bat (*Lasiurus borealis*, LABO), Hoary Bat (*Lasiurus cinereus*, LACI), Silver-haired Bat (*Lasionycteris noctivagans*, LANO), Long-eared Myotis (*Myotis evotis*, MYEV), and a 40 kHz Myotis complex (40KMyo) comprising *M. lucifugus*, *M. volans*, and *M. septentrionalis*, whose recordings were summed within each site-night prior to modelling. Long-eared Myotis is not included in the 40KMyotis complex due to it's lower frequency call (Fc\~30-35kHz).
+
+#### **Model structure and selection**
+
+Nightly bat activity (number of recordings per site-night) was modelled using negative binomial generalized linear mixed models (GLMMs) with a log link, fitted in `glmmTMB` (Version 1.1.12). Each model included a random intercept for deployment (`1 | site:year`). This term was used in preference to a site-only intercept because nights within a deployment share a common detector, configuration, and weather window, and are therefore not independent replicates of a year. Fixed effects comprised a linear year term (years since 2020), a two-level detector-unit term (Wildlife Acoustics SM4 vs. Titley Anabat Swift, with Swift as the reference) included to account for potential differences in detection attributable to unit type, and a taxon-specific set of environmental covariates.
+
+For each taxon, candidate models were ranked by AICc and the covariate set from the top-ranked (lowest AICc) model was retained.
 
 # Results
 
-Acoustic monitoring happened for a total of `r length(nightly$date[nightly$Site !="DrivingTransect"])` detector nights across `r length(unique(nightly$Site[nightly$Site !="DrivingTransect"]))` stationary survey locations and `r length(unique(nightly$date[nightly$Site =="DrivingTransect"]))` driving transects over six years (2020–2025) ([@tbl-sppmean]). Survey effort was mostly even within sites and years with sites sampled for a mean of `r round(mean(with(subset(nightly, !(Site == "DrivingTransect")), table(paste(year, Site)))), 1)` nights per year (range: `r min(with(subset(nightly, !(Site == "DrivingTransect")), table(paste(year, Site))))`–`r max(with(subset(nightly, !(Site =="DrivingTransect")), table(paste(year, Site))))` nights per site-year). A total of `r sum(nightly$nightly_total[nightly$Site !="DrivingTransect"])` bat detections were recorded across the three stationary sites and a total of `r sum(nightly$nightly_total[nightly$Site =="DrivingTransect"])` where collected during driving transects in the Banff NABat grid cell.
+Acoustic monitoring happened for a total of `r length(nightly$date[nightly$Site !="Driving Transect"])` detector nights across `r length(unique(nightly$Site[nightly$Site !="Driving Transect"]))` stationary survey locations and `r length(unique(nightly$date[nightly$Site =="Driving Transect"]))` driving transects nights over six years (2020–2025, @tbl-sppmean). Survey effort was mostly even within sites and years with sites sampled for a mean of `r round(mean(with(subset(nightly, !(Site == "Driving Transect")), table(paste(year, Site)))), 1)` nights per year (range: `r min(with(subset(nightly, !(Site == "Driving Transect")), table(paste(year, Site))))`–`r max(with(subset(nightly, !(Site =="Driving Transect")), table(paste(year, Site))))` nights per site-year). A total of `r sum(nightly$nightly_total[nightly$Site !="Driving Transect"])` bat detections were recorded across the three stationary sites and a total of `r sum(nightly$nightly_total[nightly$Site =="Driving Transect"])` where collected during driving transects in the Banff NABat grid cell.
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| include: true
+#| tbl-pos: H
+#| tbl-cap: Monitoring effort and bat species detections in the Banff (2020–2025). Mean nightly recordings (± SD) represent total bat detections per night summed across species. Species detections indicate presence (X) within each year and quadrant based on combined automated and manually reviewed identifications. 2024 and 2025 are bolded to highlight that these were the only years were manual verification occurred.
+#| label: tbl-sppmean
+
+# --- 6. Render with gt (works for both HTML and PDF) ------------------------
+sppmean <- tbl |>
+  arrange(Site == "Driving Transect", Year, Site) |>   # <- add this line
+  gt() |>
+  cols_label(mean_sd = "Mean Nightly Bat Recordings \u00b1 SD") |>
+  cols_align(align = "left",   columns = c(Year, Site)) |>
+  cols_align(align = "center", columns = c(Nights, mean_sd, all_of(sp_cols))) |>
+  tab_style(
+    style     = cell_text(weight = "bold"),
+    locations = cells_body(columns = Year)
+  ) |>
+  # bold manually verified years (2024, 2025) across the whole row
+  tab_style(
+    style     = cell_text(weight = "bold"),
+    locations = cells_body(rows = Year %in% c(2024, 2025))
+  ) |>
+  # bold headers with light grey fill  (unchanged)
+  tab_style(
+    style = list(cell_text(weight = "bold"),
+                 cell_fill(color = "#f2f2f2")),
+    locations = cells_column_labels()
+  ) |>
+  opt_row_striping() |>                          # alternating fill (
+  tab_options(
+    table.font.size            = px(15),
+    data_row.padding           = px(3),
+    table.border.top.style     = "hidden",
+    table.border.bottom.style  = "hidden",
+    column_labels.border.top.style    = "solid",
+    column_labels.border.bottom.style = "solid",
+    row.striping.background_color = "#fafafa"    # stripe colour 
+  )
+
+gtsave(sppmean, "Figures/sppmean_table.png", vwidth = 1000, zoom = 2.25)
+
+if (is_html) {
+  sppmean
+} else {
+  knitr::include_graphics("Figures/sppmean_table.png")
+}
+```
+
+## *Species detected and mean nightly activity*
+
+Eight species were recorded across the study. Silver-haired bat (*Lasionycteris noctivagans*) and Little Brown Bat (*Myotis lucifugus*) were detected across every site and year. Northern myotis (*Myotis septentrionalis*) was by far the scarcest species, detected only at Fenlands in 2022 and 2024, and Golf Course in 2023 and 2024 ([@tbl-sppmean], @fig-sites). The Little Brown Bat had the highest number of detections across all years (`r totalspp$total[totalspp$species == "MYLU"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYLU"]`). This was followed by Long-legged Myotis (`r totalspp$total[totalspp$species == "MYVO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYVO"]`), and Eastern Red Bat (`r totalspp$total[totalspp$species == "LABO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LABO"]`).
 
 ```{r}
 #| label: fig-sites
@@ -1033,6 +1229,7 @@ Acoustic monitoring happened for a total of `r length(nightly$date[nightly$Site 
 #| warning: false
 #| message: false
 #| out-width: 100%
+#| fig-pos: H
 #| fig-cap: !expr cap_sitesummary
 
 if (is_html) {
@@ -1056,56 +1253,9 @@ if (is_html) {
 }
 ```
 
-## *Species detected and mean nightly activity*
-
-Eight species were recorded across the study. Silver-haired bat (*Lasionycteris noctivagans*) and Little Brown Bat (*Myotis lucifugus*) were detected across every site and year. Northern myotis (*Myotis septentrionalis*) was by far the scarcest species, detected only at Fenlands in 2022 and 2024, and Golf Course in 2023 and 2024 ([@tbl-sppmean]). The Little Brown Bat had the highest number of detections across all years (`r totalspp$total[totalspp$species == "MYLU"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYLU"]`). This was followed by Long-legged Myotis (`r totalspp$total[totalspp$species == "MYVO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYVO"]`), and Eastern Red Bat (`r totalspp$total[totalspp$species == "LABO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LABO"]`).
-
-```{r}
-#| echo: false
-#| eval: true
-#| warning: false
-#| message: false
-#| include: true
-#| tbl-cap: Monitoring effort and bat species detections in the Banff (2020–2025). Mean nightly recordings (± SD) represent total bat detections per night summed across species. Species detections indicate presence (X) within each year and quadrant based on combined automated and manually reviewed identifications. 2024 and 2025 are bolded to highlight that these were the only years were manual verification occurred.
-#| label: tbl-sppmean
-
-# --- 6. Render with gt (works for both HTML and PDF) ------------------------
-tbl |>
-  arrange(Site == "DrivingTransect", Year, Site) |>   # <- add this line
-  gt() |>
-  cols_label(mean_sd = "Mean Nightly Bat Recordings \u00b1 SD") |>
-  cols_align(align = "left",   columns = c(Year, Site)) |>
-  cols_align(align = "center", columns = c(Nights, mean_sd, all_of(sp_cols))) |>
-  tab_style(
-    style     = cell_text(weight = "bold"),
-    locations = cells_body(columns = Year)
-  ) |>
-  # bold manually verified years (2024, 2025) across the whole row
-  tab_style(
-    style     = cell_text(weight = "bold"),
-    locations = cells_body(rows = Year %in% c(2024, 2025))
-  ) |>
-  # bold headers with light grey fill  (unchanged)
-  tab_style(
-    style = list(cell_text(weight = "bold"),
-                 cell_fill(color = "#f2f2f2")),
-    locations = cells_column_labels()
-  ) |>
-  opt_row_striping() |>                          # alternating fill (unchanged)
-  tab_options(
-    table.font.size            = px(15),
-    data_row.padding           = px(3),
-    table.border.top.style     = "hidden",
-    table.border.bottom.style  = "hidden",
-    column_labels.border.top.style    = "solid",
-    column_labels.border.bottom.style = "solid",
-    row.striping.background_color = "#fafafa"    # stripe colour (unchanged)
-  )
-```
-
 ## *Species Trends*
 
-Models converged for six species/groups: Big Brown Bat (EPFU), Eastern Red Bat (LABO), Hoary Bat (LACI), Silver-haired Bat (LANO), Long-eared Myotis (MYEV) and the combined 40kHz Myotis group (40KMyo) (@fig-trends).
+Models converged for all six species/groups: Big Brown Bat (EPFU), Eastern Red Bat (LABO), Hoary Bat (LACI), Silver-haired Bat (LANO), Long-eared Myotis (MYEV) and the combined 40kHz Myotis group (40KMyo) (@fig-trends).
 
 ```{r}
 #| echo: false
@@ -1113,6 +1263,7 @@ Models converged for six species/groups: Big Brown Bat (EPFU), Eastern Red Bat (
 #| warning: false
 #| message: false
 #| include: true
+#| tbl-pos: H
 #| tbl-cap: Species trend estimate model results. Need to explain what the estimate is telling us since this is in a log scale
 #| label: tbl-spptrend
 
@@ -1125,7 +1276,7 @@ trend_tbl <- models_summary |>
     p_value  = format.pval(YearS_p, digits = 2, eps = 0.001)
   )
 
-trend_tbl |>
+trends <- trend_tbl |>
   gt() |>
   cols_label(
     Covariates = "Covariates Used",
@@ -1159,9 +1310,17 @@ trend_tbl |>
     row.striping.background_color = "#fafafa"
   )
 
+gtsave(trends, "Figures/Trends/trend_table.png", vwidth = 1000, zoom = 2.25)
+
+if (is_html) {
+  trends
+} else {
+  knitr::include_graphics("Figures/Trends/trend_table.png")
+}
+
 ```
 
-![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Solid lines indicate significant trends (p \< 0.05), and dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel-det.png){#fig-trends}
+![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel-det.png){#fig-trends}
 
 # Discussion
 
@@ -1210,5 +1369,90 @@ if (knitr::is_latex_output()) {
     autofit()
 }
 ```
+
+{{< pagebreak >}}
+
+```{r}
+#| label: AppendixB
+#| echo: false
+#| warning: false
+#| message: false
+#| output: asis
+
+# ---- Appendix B: per-site popup content, PDF only ------------------------
+# Recreates the pie chart + "Mean detections by date" chart from the map
+# popups, screenshots each with webshot2, one site per subsection.
+if (is_pdf) {
+  # Flag the mobile (driving transect) site — same match used to build the map
+  map_data$is_mobile <- grepl("Driving Transect", map_data$Site, ignore.case = TRUE)
+  
+  appx_dir <- "Figures/AppendixB"
+  if (!dir.exists(appx_dir)) dir.create(appx_dir, recursive = TRUE)
+  
+  # Stationary sites first (alphabetical), then mobile
+  ord           <- order(map_data$is_mobile, map_data$Site)
+  sites_ordered <- map_data$Site[ord]
+  mobile_ordered <- map_data$is_mobile[ord]
+  has_fig       <- !mobile_ordered          # transect gets no date chart
+  
+  html_paths <- character(length(sites_ordered))
+  pie_pngs   <- character(length(sites_ordered))
+  fig_pngs   <- character(length(sites_ordered))
+  
+  for (k in seq_along(sites_ordered)) {
+    site   <- sites_ordered[k]
+    counts <- setNames(as.numeric(unlist(map_data[map_data$Site == site, target_species])),
+                       target_species)
+    
+    # Pie at its native 340x200 — cx/r/legend x are hardcoded, so don't resize.
+    # zoom = 3 carries the resolution instead.
+    pie_svg <- make_pie_svg(counts)
+    
+    fig_div <- ""
+    if (has_fig[k]) {
+      sd_i    <- site_day[site_day$Site == site, ]
+      sd_i    <- sd_i[order(sd_i$day), ]
+      fig_svg <- make_dayseries_svg(sd_i$day, sd_i$value, xlim = day_xlim,
+                                    width = 520L, height = 320L, font_size = 12,
+                                    ylab = day_ylab)
+      fig_div <- sprintf('<div id="fig">%s</div>', fig_svg)
+    }
+    
+    page_html <- sprintf(
+      '<!DOCTYPE html><html><head><meta charset="utf-8"><style>body{margin:0;padding:10px;background:#fff;}#pie,#fig{display:inline-block;}</style></head><body><div id="pie">%s</div>%s</body></html>',
+      pie_svg, fig_div)
+    
+    safe          <- gsub("[^A-Za-z0-9]+", "_", site)
+    html_paths[k] <- normalizePath(file.path(appx_dir, paste0(safe, ".html")), mustWork = FALSE)
+    pie_pngs[k]   <- file.path(appx_dir, paste0(safe, "_pie.png"))
+    fig_pngs[k]   <- file.path(appx_dir, paste0(safe, "_chart.png"))
+    writeLines(page_html, html_paths[k])
+  }
+  
+  # Two headless-Chrome sessions total: one for all pies, one for all charts.
+  # webshot2 prints a "... screenshot completed" line per file to stdout, which
+  # under `output: asis` leaks into the document — capture and discard it.
+  invisible(utils::capture.output(suppressMessages({
+    webshot2::webshot(url = html_paths, file = pie_pngs, selector = "#pie", zoom = 3)
+    if (any(has_fig)) {
+      webshot2::webshot(url = html_paths[has_fig], file = fig_pngs[has_fig],
+                        selector = "#fig", zoom = 2)
+    }
+  })))
+  
+  # Emit the appendix as markdown
+  cat("# Appendix B\n\n")
+  cat("Species detection summaries for each monitoring site.\n\n")
+  for (k in seq_along(sites_ordered)) {
+    # Start each site (except the first) on a fresh page
+    if (k > 1) cat("\n\\newpage\n\n")
+    cat(sprintf("### %s {.unnumbered .unlisted}\n\n", sites_ordered[k]))
+    cat(sprintf("![](%s){width=60%%}\n\n", pie_pngs[k]))
+    if (has_fig[k]) cat(sprintf("![](%s){width=60%%}\n\n", fig_pngs[k]))
+  }
+}
+```
+
+{{< pagebreak >}}
 
 # Literature Cited
