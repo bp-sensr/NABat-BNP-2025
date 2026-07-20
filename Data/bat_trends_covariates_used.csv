@@ -1,7 +1,7 @@
 sp,covariates
-EPFU,Nightly Mean Temperature + Nightly Mean Relative Humidity
-LABO,Nightly Mean Temperature + Nightly Mean Wind Speed + Nightly Precipitation
-LACI,Nightly Mean Temperature + Nightly Precipitation + Nightly Mean Wind Speed + Moon Illumination Fraction
-LANO,Nightly Mean Relative Humidity + Nightly Mean Wind Speed
-40KMyo,Nightly Mean Relative Humidity
-MYEV,Nightly Precipitation + Nightly Mean Wind Speed + Nightly Mean Temperature
+EPFU,Nightly Mean Temperature
+LABO,Nightly Mean Temperature + Nightly Precipitation + Nightly Mean Wind Speed
+LACI,Nightly Mean Temperature + Moon Illumination Fraction + Nightly Precipitation + Nightly Mean Wind Speed
+LANO,Nightly Mean Relative Humidity + Nightly Mean Wind Speed + Nightly Mean Temperature
+40KMyo,Nightly Mean Relative Humidity + Nightly Mean Temperature + Nightly Precipitation
+MYEV,Nightly Precipitation + Nightly Mean Temperature + Nightly Mean Wind Speed

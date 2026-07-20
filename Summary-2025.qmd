@@ -49,7 +49,7 @@ nocite: '@*'
 #| eval: true
 #| warning: false
 #| message: false
-# 
+
 # #This is for reference only. The report does not use this code to create anything. This is the code used to create and select the best fit model. If need can uncomment the whole section and run code.
 # 
 # suppressPackageStartupMessages({
@@ -84,7 +84,7 @@ nocite: '@*'
 #                               optArgs   = list(method = "BFGS",
 #                                                control = list(maxit = 20000)))
 # #when run this code LANO best fit family is ZINB, but by a marginal difference in AIC. For consistency and to easily compare across spp models will force to use NB2 since all other species used it
-# FORCE_FAMILY <- c(LABO = "NB2", '40KMyo' = "NB2" )
+# FORCE_FAMILY <- c(EPFU = "NB2", '40KMyo' = "NB2", LACI = "NB2")
 # # ----------------------------- HELPERS -------------------------------
 # scale_with_na <- function(x) {
 #   x <- as.numeric(x)
@@ -143,7 +143,7 @@ nocite: '@*'
 # }
 # 
 # # --------------------- READ DATA ONCE (not per species) --------------
-# dat_raw <- read.csv("Data/NABat_Banff2020-2025-detectorClean.csv")
+# dat_raw <- read.csv("Data/NABat_Banff2020-2025-detector.csv")
 # dat_raw <- dat_raw %>%
 #   mutate(
 #     date    = as.Date(date),
@@ -592,6 +592,39 @@ tbl <- tbl %>% select(-c(MYOTIS,"40KMYO",HIF,LOWF, NOID))
 
 sp_cols <- intersect(sp_order, names(tbl))  # species columns actually present
 
+
+#----------Trends summary values-------------------------
+# YearS trend on the IRR (response) scale — computed identically to the
+# gt table so the prose and @tbl-spptrend always agree.
+irr_vals <- models_summary |>
+  transmute(
+    sp,
+    irr  = exp(YearS_estimate),
+    low  = exp(YearS_estimate - 1.96 * YearS_se),
+    high = exp(YearS_estimate + 1.96 * YearS_se),
+    p    = YearS_p
+  )
+
+# Pull exactly one species row; error loudly on a code/typo mismatch
+sp_row <- function(code) {
+  r <- irr_vals[irr_vals$sp == code, ]
+  if (nrow(r) != 1L) stop("Expected one row for '", code, "', got ", nrow(r))
+  r
+}
+
+fmt_p <- function(p) ifelse(p < 0.001, "< 0.001",
+                            formatC(p, format = "f", digits = 2))
+
+irr  <- function(code) sprintf("%.2f", sp_row(code)$irr)
+ci   <- function(code) { r <- sp_row(code); sprintf("%.2f\u2013%.2f", r$low, r$high) }
+pval <- function(code) fmt_p(sp_row(code)$p)
+pct  <- function(code) round(abs(1 - sp_row(code)$irr) * 100)
+
+irr_ci_p <- function(code)
+  sprintf("IRR = %s, 95%% CI %s; p = %s", irr(code), ci(code), pval(code))
+
+min_p <- sprintf("%.2f", min(irr_vals$p))
+
 ```
 
 ```{r}
@@ -1002,9 +1035,6 @@ m = m |>
 m
 ```
 
-```         
-```
-
 {{< pagebreak >}}
 
 # Land Acknowledgement
@@ -1059,7 +1089,7 @@ Acoustic recording is a cost-effective method for monitoring bat populations acr
 
 ### Stationary Surveys
 
-Banff biologists deployed three stationary bat detectors in strategically selected bat habitat across three distinct quadrants within the NABat grid cell (@fig-sites). These stationary sites were deployed consistently every year from 2020 to 2025, with detectors set out between June 24–30 and retrieved between July 2–23 ( @tbl-deployments). The comparable deployment windows across years allow for interannual comparison. Deployment setup followed the standards established by @loeb2015Plan. Titley Swift units were used in most years, except in 2020 and 2024, when Wildlife Acoustics SM4 units were deployed instead.
+Banff biologists deployed three stationary bat detectors in strategically selected bat habitat acrossdistinct quadrants within the NABat grid cell (GRID Cell ID: 148842; @fig-sites). These stationary sites were deployed consistently every year from 2020 to 2025, with detectors set out between June 24–30 and retrieved between July 2–23 ( @tbl-deployments). The comparable deployment windows across years allow for interannual comparison. Deployment setup followed the standards established by @loeb2015Plan. Titley Swift units were used in most years, except in 2020 and 2024, when Wildlife Acoustics SM4 units were deployed instead.
 
 ### Transect Surveys
 
@@ -1089,7 +1119,7 @@ deploy_tbl <- sites |>
     Detector = det_unit,
     Start  = format(start, "%d %b"),
     End    = format(end,   "%d %b"),
-    Nights = if_else(transect, 1L, as.integer(end - start-1))
+    Nights = if_else(transect, 1L, as.integer(end - start))
   )
 
 
@@ -1129,7 +1159,7 @@ if (knitr::is_html_output()) {
 
 ## *Manual Verification*
 
-All recordings were classified using the Kaleidoscope Pro Bats of North America 5.4.0 classifier or newer. Automatic classification was used to assign species identifications and to exclude non-bat recordings. Manual verification of classifications was conducted for the 2024 and 2025 seasons only, following the processing standards established by the North American Bat Monitoring Program (NABat) [@reichert2018Guide]. Only recordings assigned a species classification by either Kaleidoscope were selected for manual verification. For stationary acoustic monitoring, recordings were manually vetted until at least one recording per species per site per night was confidently identified. For mobile transects, all recordings with automated species classifications were manually vetted. Species identifications were validated against reference call parameters described by @slough2022New, @solick2022Bat, and @szewczak2018Acoustic, adhering to NABat manual vetting standards [@reichert2018Guide].
+All recordings were classified using the Kaleidoscope Pro Bats of North America 5.4.0 classifier or newer. Automatic classification was used to assign species identifications and to exclude non-bat recordings. Manual verification of classifications was conducted for the 2024 and 2025 seasons only, following the processing standards established by the North American Bat Monitoring Program (NABat) [@reichert2018Guide]. Only recordings assigned a species classification by Kaleidoscope were selected for manual verification. For stationary acoustic monitoring, recordings were manually vetted until at least one recording per species per site per night was confidently identified. For mobile transects, all recordings with automated species classifications were manually vetted. Species identifications were validated against reference call parameters described by @slough2022New, @solick2022Bat, and @szewczak2018Acoustic, adhering to NABat manual vetting standards [@reichert2018Guide].
 
 Based on documented species ranges and prior detection data [@olsonBat], manual identification efforts focused on seven species: Big Brown Bats (*Eptesicus fuscus*), Eastern Red Bats (*Lasiurus borealis*), Silver-haired Bats (*Lasionycteris noctivagans*), Hoary Bat (*Lasiurus cinereus*), Little Brown Bats (*Myotis lucifugus*), Long-legged Myotis (*Myotis volans*) and Long-eared Myotis (*Myotis evotis*).
 
@@ -1155,7 +1185,7 @@ Trend models used stationary detector data only. Transect data were not modelled
 
 #### **Species**
 
-Trends were estimated for six taxa: Big Brown Bat (*Eptesicus fuscus*, EPFU), Eastern Red Bat (*Lasiurus borealis*, LABO), Hoary Bat (*Lasiurus cinereus*, LACI), Silver-haired Bat (*Lasionycteris noctivagans*, LANO), Long-eared Myotis (*Myotis evotis*, MYEV), and a 40 kHz Myotis complex (40KMyo) comprising *M. lucifugus*, *M. volans*, and *M. septentrionalis*, whose recordings were summed within each site-night prior to modelling. Long-eared Myotis is not included in the 40KMyotis complex due to it's lower frequency call (Fc\~30-35kHz).
+Trends were estimated for six taxa: Big Brown Bat (*Eptesicus fuscus*, EPFU), Eastern Red Bat (*Lasiurus borealis*, LABO), Hoary Bat (*Lasiurus cinereus*, LACI), Silver-haired Bat (*Lasionycteris noctivagans*, LANO), Long-eared Myotis (*Myotis evotis*, MYEV), and a 40 kHz Myotis complex (40KMyo) comprising *M. lucifugus*, *M. volans*, and *M. septentrionalis,* whose recordings were summed within each site-night prior to modelling.We used the 40kHz Myotis complex due to the high proportion of error by Kaleidoscope and differentiating between these species. The Long-eared Myotis is not included in the 40KMyotis complex due to it's lower frequency call (Fc\~30-35kHz) making it more identifiable, and less likely to be misidentified by the program.
 
 #### **Model structure and selection**
 
@@ -1221,7 +1251,7 @@ if (is_html) {
 
 ## *Species detected and mean nightly activity*
 
-Eight species were recorded across the study. Silver-haired bat (*Lasionycteris noctivagans*) and Little Brown Bat (*Myotis lucifugus*) were detected across every site and year. Northern myotis (*Myotis septentrionalis*) was by far the scarcest species, detected only at Fenlands in 2022 and 2024, and Golf Course in 2023 and 2024 ([@tbl-sppmean], @fig-sites). The Little Brown Bat had the highest number of detections across all years (`r totalspp$total[totalspp$species == "MYLU"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYLU"]`). This was followed by Long-legged Myotis (`r totalspp$total[totalspp$species == "MYVO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYVO"]`), and Eastern Red Bat (`r totalspp$total[totalspp$species == "LABO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LABO"]`).
+Eight species were recorded across the study. Silver-haired bat (*Lasionycteris noctivagans*) and Little Brown Bat (*Myotis lucifugus*) were detected across every site/driving transect and year. Northern myotis (*Myotis septentrionalis*) was by far the scarcest species, detected only at Fenlands in 2022 and 2024, and Golf Course in 2022, 2023 and 2024 ([@tbl-sppmean], @fig-sites). The Little Brown Bat had the highest number of species detections across all years (`r totalspp$total[totalspp$species == "MYLU"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYLU"]`). This was followed by Long-legged Myotis (`r totalspp$total[totalspp$species == "MYVO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYVO"]`), and Eastern Red Bat (`r totalspp$total[totalspp$species == "LABO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LABO"]`).
 
 ```{r}
 #| label: fig-sites
@@ -1255,7 +1285,11 @@ if (is_html) {
 
 ## *Species Trends*
 
-Models converged for all six species/groups: Big Brown Bat (EPFU), Eastern Red Bat (LABO), Hoary Bat (LACI), Silver-haired Bat (LANO), Long-eared Myotis (MYEV) and the combined 40kHz Myotis group (40KMyo) (@fig-trends).
+Across all six modelled taxa, the year term (YearS, years since 2020) was non-significant, with 95% confidence intervals on every incidence rate ratio (IRR) encompassing 1.0 (all *p* ≥ `r min_p`). We therefore detected no statistically significant directional change in nightly detection rates over the 2020–2025 monitoring period, consistent with relatively stable bat activity within the Banff grid cell (@tbl-spptrend).
+
+Estimates varied in both direction and magnitude. Big Brown Bat (EPFU; `r irr_ci_p("EPFU")`) and Long-eared Myotis (MYEV; `r irr_ci_p("MYEV")`) trended positive, while Eastern Red Bat (LABO; `r irr_ci_p("LABO")`) and Silver-haired Bat (LANO; `r irr_ci_p("LANO")`) were essentially flat to weakly negative (@fig-trends). None of these approached significance.
+
+Two taxa showed negative estimates that, while not significant, are important to note. The 40 kHz Myotis complex (40KMyo) had the steepest negative trend, with an IRR of `r irr("40KMyo")` (95% CI `r ci("40KMyo")`; *p* = `r pval("40KMyo")`). This estimate corresponds to roughly a `r pct("40KMyo")`% decline in nightly activity per year. The Hoary Bat likewise trended negative (LACI; `r irr_ci_p("LACI")`), corresponding to a point estimate of about a `r pct("LACI")`% annual decline.
 
 ```{r}
 #| echo: false
@@ -1270,35 +1304,53 @@ Models converged for all six species/groups: Big Brown Bat (EPFU), Eastern Red B
 trend_tbl <- models_summary |>
   left_join(covariates_used, by = "sp") |>
   transmute(
-    Species  = sp,
+    Species    = sp,
     Covariates = coalesce(covariates, "\u2014"),
-    trend_ci = sprintf("%.3f \u00b1 %.3f", YearS_estimate, 1.96 * YearS_se),
-    p_value  = format.pval(YearS_p, digits = 2, eps = 0.001)
+    irr_ci = sprintf(
+      "%.2f (%.2f\u2013%.2f)",
+      exp(YearS_estimate),
+      exp(YearS_estimate - 1.96 * YearS_se),
+      exp(YearS_estimate + 1.96 * YearS_se)
+    ),
+    p_num   = YearS_p,                                    # numeric, for the bolding logic
+    p_value = format.pval(YearS_p, digits = 2, eps = 0.001)
   )
 
 trends <- trend_tbl |>
-  gt() |>
+  gt(id = "tbl-trends") |>
   cols_label(
     Covariates = "Covariates Used",
-    trend_ci   = "Trend Estimate \u00b1 95% CI",
+    irr_ci     = "IRR (95% CI)",
     p_value    = "p-value"
   ) |>
+  cols_hide(columns = p_num) |>         # keep it in the data, off the table
   cols_align(align = "left",   columns = c(Species, Covariates)) |>
-  cols_align(align = "center", columns = c(trend_ci, p_value)) |>
+  cols_align(align = "center", columns = c(irr_ci, p_value)) |>
+  #adjust col widths
+  cols_width(
+    Species    ~ px(80),
+    Covariates ~ px(150),   # tightened — long covariate lists wrap to 2 lines
+    irr_ci     ~ px(210),   # widened
+    p_value    ~ px(80)
+  ) |>
   tab_style(
     style     = cell_text(weight = "bold"),
     locations = cells_body(columns = Species)
   ) |>
+  # bold the column header row
+  tab_style(
+    style     = cell_text(weight = "bold"),
+    locations = cells_column_labels()
+  ) |>
   # bold rows that are statistically significant (p < 0.05)
   tab_style(
     style     = cell_text(weight = "bold"),
-    locations = cells_body(rows = p_value < 0.05)
+    locations = cells_body(rows = p_num < 0.05) 
   ) |>
-  tab_style(
-    style = list(cell_text(weight = "bold"),
-                 cell_fill(color = "#f2f2f2")),
-    locations = cells_column_labels()
-  ) |>
+  opt_css(css = "
+    #tbl-trends { table-layout: fixed; width: 520px; }
+    #tbl-trends td, #tbl-trends th { overflow-wrap: break-word; }
+  ") |>
   opt_row_striping() |>
   tab_options(
     table.font.size            = px(15),
@@ -1320,7 +1372,7 @@ if (is_html) {
 
 ```
 
-![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel-det.png){#fig-trends}
+![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel.png){#fig-trends}
 
 # Discussion
 
