@@ -385,6 +385,14 @@ nocite: '@*'
 #       labs(title = SP, x = "Year", y = "Predicted detections per night") +
 #       theme_classic()
 # 
+#     # 40KMyo's CI ribbon is so wide it visually flattens the trend line;
+#     # clip the y-axis display to 100 for this species only.
+#     # Use coord_cartesian (not ylim/scale_y_continuous) so the ribbon and
+#     # line are drawn over the full data and only clipped visually — no rows dropped.
+#     if (SP == "40KMyo") {
+#       p <- p + coord_cartesian(ylim = c(0, 100))
+#     }
+# 
 #     list(sp = SP, ok = TRUE, reason = NA_character_,
 #          report_tbl = report_tbl, meta_tbl = meta_tbl, diag_tbl = diag_tbl,
 #          support_vars = support_vars, plot = p)
@@ -1089,11 +1097,11 @@ Acoustic recording is a cost-effective method for monitoring bat populations acr
 
 ### Stationary Surveys
 
-Banff biologists deployed three stationary bat detectors in strategically selected bat habitat acrossdistinct quadrants within the NABat grid cell (GRID Cell ID: 148842; @fig-sites). These stationary sites were deployed consistently every year from 2020 to 2025, with detectors set out between June 24–30 and retrieved between July 2–23 ( @tbl-deployments). The comparable deployment windows across years allow for interannual comparison. Deployment setup followed the standards established by @loeb2015Plan. Titley Swift units were used in most years, except in 2020 and 2024, when Wildlife Acoustics SM4 units were deployed instead.
+Banff biologists deployed three stationary bat detectors in strategically selected bat habitat acrossdistinct quadrants within the NABat grid cell (GRID Cell ID: 148842; @fig-sites). These stationary sites were deployed consistently every year from 2020 to 2025, with detectors set out between June 24--30 and retrieved between July 2--23 ( @tbl-deployments). The comparable deployment windows across years allow for interannual comparison. Deployment setup followed the standards established by @loeb2015Plan. Titley Swift units were used in most years, except in 2020 and 2024, when Wildlife Acoustics SM4 units were deployed instead.
 
 ### Transect Surveys
 
-The driving transect protocol closely follows that established by @loeb2015Plan. Between one and three replicates of a mobile transect were driven at 30–35 km/h with a bat detector mounted on the vehicle roof to record bats along the road (@fig-sites). Transects were conducted during the same period that the stationary acoustic units were deployed (@tbl-deployments). Titley Walkabout units were used for all transect deployments across all years.
+The driving transect protocol closely follows that established by @loeb2015Plan. Between one and three replicates of a mobile transect were driven at 30--35 km/h with a bat detector mounted on the vehicle roof to record bats along the road (@fig-sites). Transects were conducted during the same period that the stationary acoustic units were deployed (@tbl-deployments). Titley Walkabout units were used for all transect deployments across all years.
 
 ```{r}
 #| echo: false
@@ -1171,7 +1179,7 @@ All the recordings and results can be found on Widltrax under the Banff National
 
 ### *Species summaries*
 
-Species presence and nightly activity were summarized from a site–night–species table constructed for all sampled nights. Sampling effort was defined as the number of unique site-nights on which a detector was recording. Mean nightly passes include all recordings assigned a species or couplet label; couplet-labelled files were counted toward both member species.
+Species presence and nightly activity were summarized from a site--night--species table constructed for all sampled nights. Sampling effort was defined as the number of unique site-nights on which a detector was recording. Mean nightly passes include all recordings assigned a species or couplet label; couplet-labelled files were counted toward both member species.
 
 ### *Environmental covariates*
 
@@ -1195,7 +1203,7 @@ For each taxon, candidate models were ranked by AICc and the covariate set from 
 
 # Results
 
-Acoustic monitoring happened for a total of `r length(nightly$date[nightly$Site !="Driving Transect"])` detector nights across `r length(unique(nightly$Site[nightly$Site !="Driving Transect"]))` stationary survey locations and `r length(unique(nightly$date[nightly$Site =="Driving Transect"]))` driving transects nights over six years (2020–2025, @tbl-sppmean). Survey effort was mostly even within sites and years with sites sampled for a mean of `r round(mean(with(subset(nightly, !(Site == "Driving Transect")), table(paste(year, Site)))), 1)` nights per year (range: `r min(with(subset(nightly, !(Site == "Driving Transect")), table(paste(year, Site))))`–`r max(with(subset(nightly, !(Site =="Driving Transect")), table(paste(year, Site))))` nights per site-year). A total of `r sum(nightly$nightly_total[nightly$Site !="Driving Transect"])` bat detections were recorded across the three stationary sites and a total of `r sum(nightly$nightly_total[nightly$Site =="Driving Transect"])` where collected during driving transects in the Banff NABat grid cell.
+Acoustic monitoring happened for a total of `r length(nightly$date[nightly$Site !="Driving Transect"])` detector nights across `r length(unique(nightly$Site[nightly$Site !="Driving Transect"]))` stationary survey locations and `r length(unique(nightly$date[nightly$Site =="Driving Transect"]))` driving transects nights over six years (2020--2025, @tbl-sppmean). Survey effort was mostly even within sites and years with sites sampled for a mean of `r round(mean(with(subset(nightly, !(Site == "Driving Transect")), table(paste(year, Site)))), 1)` nights per year (range: `r min(with(subset(nightly, !(Site == "Driving Transect")), table(paste(year, Site))))`--`r max(with(subset(nightly, !(Site =="Driving Transect")), table(paste(year, Site))))` nights per site-year). A total of `r sum(nightly$nightly_total[nightly$Site !="Driving Transect"])` bat detections were recorded across the three stationary sites and a total of `r sum(nightly$nightly_total[nightly$Site =="Driving Transect"])` where collected during driving transects in the Banff NABat grid cell.
 
 ```{r}
 #| echo: false
@@ -1285,11 +1293,7 @@ if (is_html) {
 
 ## *Species Trends*
 
-Across all six modelled taxa, the year term (YearS, years since 2020) was non-significant, with 95% confidence intervals on every incidence rate ratio (IRR) encompassing 1.0 (all *p* ≥ `r min_p`). We therefore detected no statistically significant directional change in nightly detection rates over the 2020–2025 monitoring period, consistent with relatively stable bat activity within the Banff grid cell (@tbl-spptrend).
-
-Estimates varied in both direction and magnitude. Big Brown Bat (EPFU; `r irr_ci_p("EPFU")`) and Long-eared Myotis (MYEV; `r irr_ci_p("MYEV")`) trended positive, while Eastern Red Bat (LABO; `r irr_ci_p("LABO")`) and Silver-haired Bat (LANO; `r irr_ci_p("LANO")`) were essentially flat to weakly negative (@fig-trends). None of these approached significance.
-
-Two taxa showed negative estimates that, while not significant, are important to note. The 40 kHz Myotis complex (40KMyo) had the steepest negative trend, with an IRR of `r irr("40KMyo")` (95% CI `r ci("40KMyo")`; *p* = `r pval("40KMyo")`). This estimate corresponds to roughly a `r pct("40KMyo")`% decline in nightly activity per year. The Hoary Bat likewise trended negative (LACI; `r irr_ci_p("LACI")`), corresponding to a point estimate of about a `r pct("LACI")`% annual decline.
+Across all six modelled taxa, the year term (YearS, years since 2020) was non-significant, with 95% confidence intervals on every incidence rate ratio (IRR) encompassing 1.0 (all *p* ≥ `r min_p`). We therefore detected no statistically significant directional change in nightly detection rates over the 2020--2025 monitoring period, consistent with relatively stable bat activity within the Banff grid cell (@tbl-spptrend).
 
 ```{r}
 #| echo: false
@@ -1329,9 +1333,9 @@ trends <- trend_tbl |>
   #adjust col widths
   cols_width(
     Species    ~ px(80),
-    Covariates ~ px(150),   # tightened — long covariate lists wrap to 2 lines
-    irr_ci     ~ px(210),   # widened
-    p_value    ~ px(80)
+    Covariates ~ px(470),   # tightened — long covariate lists wrap to 2 lines
+    irr_ci     ~ px(120),   # widened
+    p_value    ~ px(70)
   ) |>
   tab_style(
     style     = cell_text(weight = "bold"),
@@ -1348,13 +1352,18 @@ trends <- trend_tbl |>
     locations = cells_body(rows = p_num < 0.05) 
   ) |>
   opt_css(css = "
-    #tbl-trends { table-layout: fixed; width: 520px; }
-    #tbl-trends td, #tbl-trends th { overflow-wrap: break-word; }
-  ") |>
+    #tbl-trends, #tbl-trends table.gt_table {
+      table-layout: fixed !important;
+      width: 740px !important;
+    }
+    #tbl-trends .gt_table td, #tbl-trends .gt_table th {
+      overflow-wrap: break-word;
+    }
+  ")|>
   opt_row_striping() |>
   tab_options(
     table.font.size            = px(15),
-    data_row.padding           = px(3),
+    data_row.padding           = px(2),
     table.border.top.style     = "hidden",
     table.border.bottom.style  = "hidden",
     column_labels.border.top.style    = "solid",
@@ -1371,6 +1380,10 @@ if (is_html) {
 }
 
 ```
+
+Estimates varied in both direction and magnitude. Big Brown Bat (EPFU; `r irr_ci_p("EPFU")`) and Long-eared Myotis (MYEV; `r irr_ci_p("MYEV")`) trended positive, while Eastern Red Bat (LABO; `r irr_ci_p("LABO")`) and Silver-haired Bat (LANO; `r irr_ci_p("LANO")`) were essentially flat to weakly negative (@fig-trends). None of these approached significance.
+
+Two taxa showed negative estimates that, while not significant, are important to note. The 40 kHz Myotis complex (40KMyo) had the steepest negative trend, with an IRR of `r irr("40KMyo")` (95% CI `r ci("40KMyo")`; *p* = `r pval("40KMyo")`). This estimate corresponds to roughly a `r pct("40KMyo")`% decline in nightly activity per year. The Hoary Bat likewise trended negative (LACI; `r irr_ci_p("LACI")`), corresponding to an estimate of about a `r pct("LACI")`% annual decline.
 
 ![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel.png){#fig-trends}
 
