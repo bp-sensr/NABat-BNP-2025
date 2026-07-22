@@ -1385,7 +1385,7 @@ Estimates varied in both direction and magnitude. Big Brown Bat (EPFU; `r irr_ci
 
 Two taxa showed negative estimates that, while not significant, are important to note. The 40 kHz Myotis complex (40KMyo) had the steepest negative trend, with an IRR of `r irr("40KMyo")` (95% CI `r ci("40KMyo")`; *p* = `r pval("40KMyo")`). This estimate corresponds to roughly a `r pct("40KMyo")`% decline in nightly activity per year. The Hoary Bat likewise trended negative (LACI; `r irr_ci_p("LACI")`), corresponding to an estimate of about a `r pct("LACI")`% annual decline.
 
-![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel.png){#fig-trends}
+![Species relative activity trends from 2020--2025 in the Banff NABat grid cell. Lines show trend estimates of nightly detections with 95% confidence intervals. Dashed lines indicate non-significant trends (p \> 0.05). Models are based on nightly acoustic detections and fitted using negative binomial mixed-effects models.](Figures/Trends/bat_trends_multipanel.png){#fig-trends fig-pos="H"}
 
 # Discussion
 
