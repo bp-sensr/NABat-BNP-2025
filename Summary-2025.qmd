@@ -1061,7 +1061,7 @@ NNW Bat Hub was established in 2024 with collaboration from Government of Albert
 
 ### NABat Monitoring in Banff National Park
 
-Banff National Park has been conducting NABat monitoring within one NABat grid cell (Grid Cell ID: 148842) since 2020. Monitoring efforts include three long-term stationary sites and a driving transect. In addition, 10 supplementary sites were surveyed in 2022 and 2023 to develop a bat species inventory for the park. All data from 2020 to 2023 were processed using automated identification software. In 2024 and 2025 a subset of the data were also manually verified following the established NABat protocols ([@reichert2018]).
+Banff National Park has been conducting NABat monitoring within one NABat grid cell (Grid Cell ID: 148842) since 2020. Monitoring efforts include three long-term stationary sites and a driving transect. In addition, 10 supplementary sites were surveyed in 2022 and 2023 to develop a bat species inventory for the park. All data from 2020 to 2023 were processed using automated identification software. In 2024 and 2025 a subset of the data were also manually verified following the established NABat protocols [@reichert2018].
 
 ## Threats to bat populations in Alberta
 
@@ -1069,7 +1069,7 @@ Bat populations in Alberta face a wide range of threats including forestry pract
 
 ### White-Nose Syndrome
 
-White-Nose Syndrome (WNS) is a deadly fungal disease caused by the fungus *Pseudogymnoascus destructans* (*Pd*) that affects hibernating bats. As of 2026, WNS has been confirmed in nine Canadian provinces including Alberta ( @fig-WNS: @cwhc-rcsf2024Canadian). Since Pd was first confirmed in AB in 2022, the fungus and the ensuing disease have spread through the province at a rapid pase and has now been detected at the provinces largest known hibernacula, Cadamun cave (Wilkinson, pers. comm.) Continued monitoring of populations in AB is critical as *Pd* and WNS continue to spread throughout the province.
+White-Nose Syndrome (WNS) is a deadly fungal disease caused by the fungus *Pseudogymnoascus destructans* (*Pd*) that affects hibernating bats. As of 2026, WNS has been confirmed in nine Canadian provinces including Alberta ( @fig-WNS: @cwhc-rcsf2024Canadian). Since Pd was first confirmed in AB in 2022, the fungus and the ensuing disease have spread through the province at a rapid pase and has now been detected at the provinces largest known hibernacula, Cadomin cave (Wilkinson, pers. comm.) Continued monitoring of populations in AB is critical as *Pd* and WNS continue to spread throughout the province.
 
 ![White-nose syndrome (WNS) and Pseudogymnoascus destructans (Pd) occurrence in Canada. Source: CWHC-RCSF (2026)](Figures/Canada-PD.png){#fig-WNS}
 
@@ -1083,7 +1083,7 @@ Wind energy farms have been linked to high mortality rates across all bat specie
 
 Acoustic recording is a cost-effective method for monitoring bat populations across large geographic and temporal scales. However, several limitations affect the conclusions that can be drawn from these data:
 
-1.  **Imperfect species identification** --- Bats rely on echolocation for hunting and moving around, and species with similar ecology and physiology often produce overlapping calls. While detectors are deployed to maximize recordings of diagnostic Search Phase calls, species identifiability will always vary depending on the local species assemblage.
+1.  **Imperfect species identification** --- Bats rely on echolocation for hunting and moving around, and species with similar ecology and physiology often produce overlapping calls. While detectors are deployed to maximize recordings of diagnostic calls, species identifiability will always vary depending on the local species assemblage.
 
 2.  **Variable detectability** --- Bat species are not equally detectable acoustically. Larger, wide-ranging species produce louder calls that travel farther, while smaller species with quieter calls or specialized habitat use are less reliably recorded. As a result, trend estimates cannot be produced for all species using acoustic methods alone.
 
@@ -1097,7 +1097,7 @@ Acoustic recording is a cost-effective method for monitoring bat populations acr
 
 ### Stationary Surveys
 
-Banff biologists deployed three stationary bat detectors in strategically selected bat habitat acrossdistinct quadrants within the NABat grid cell (GRID Cell ID: 148842; @fig-sites). These stationary sites were deployed consistently every year from 2020 to 2025, with detectors set out between June 24--30 and retrieved between July 2--23 ( @tbl-deployments). The comparable deployment windows across years allow for interannual comparison. Deployment setup followed the standards established by @loeb2015Plan. Titley Swift units were used in most years, except in 2020 and 2024, when Wildlife Acoustics SM4 units were deployed instead.
+Banff biologists deployed three stationary bat detectors in strategically selected bat habitat across distinct quadrants within the NABat grid cell (GRID Cell ID: 148842; @fig-sites). These stationary sites were deployed consistently every year from 2020 to 2025, with detectors set out between June 24--30 and retrieved between July 2--23 ( @tbl-deployments). The comparable deployment windows across years allow for interannual comparison. Deployment setup followed the standards established by @loeb2015Plan. Titley Swift units were used in most years, except in 2020 and 2024, when Wildlife Acoustics SM4 units were deployed instead.
 
 ### Transect Surveys
 
@@ -1183,7 +1183,7 @@ Species presence and nightly activity were summarized from a site--night--specie
 
 ### *Environmental covariates*
 
-Weather data were obtained from Environment and Climate Change Canada (ECCC) stations using the `weathercan` package (Version 1.0.0) in R and summarized for each sampling night as mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night using the `suncalc` package (Version 0.5.1) and included moon illumination and an index of moon position. All environmental covariates were standardized (z-scored) prior to modelling to aid convergence and comparability. The year term was left on its original scale so that trend estimates represent change per year.
+Weather data were obtained from the nearest Environment and Climate Change Canada (ECCC) stations using the `weathercan` package (Version 1.0.0) in R and summarized for each sampling night as mean temperature, mean relative humidity, total precipitation, and mean wind speed. Moon covariates were calculated for each site-night using the `suncalc` package (Version 0.5.1) and included moon illumination and an index of moon position. All environmental covariates were standardized (z-scored) prior to modelling to aid convergence and comparability. The year term was left on its original scale so that trend estimates represent change per year.
 
 ### *Trend models*
 
@@ -1193,11 +1193,11 @@ Trend models used stationary detector data only. Transect data were not modelled
 
 #### **Species**
 
-Trends were estimated for six taxa: Big Brown Bat (*Eptesicus fuscus*, EPFU), Eastern Red Bat (*Lasiurus borealis*, LABO), Hoary Bat (*Lasiurus cinereus*, LACI), Silver-haired Bat (*Lasionycteris noctivagans*, LANO), Long-eared Myotis (*Myotis evotis*, MYEV), and a 40 kHz Myotis complex (40KMyo) comprising *M. lucifugus*, *M. volans*, and *M. septentrionalis,* whose recordings were summed within each site-night prior to modelling.We used the 40kHz Myotis complex due to the high proportion of error by Kaleidoscope and differentiating between these species. The Long-eared Myotis is not included in the 40KMyotis complex due to it's lower frequency call (Fc\~30-35kHz) making it more identifiable, and less likely to be misidentified by the program.
+Trends were estimated for six taxa: Big Brown Bat (*Eptesicus fuscus*, EPFU), Eastern Red Bat (*Lasiurus borealis*, LABO), Hoary Bat (*Lasiurus cinereus*, LACI), Silver-haired Bat (*Lasionycteris noctivagans*, LANO), Long-eared Myotis (*Myotis evotis*, MYEV), and a 40 kHz Myotis complex (40KMyo) comprising *M. lucifugus*, *M. volans*, and *M. septentrionalis,* whose recordings were summed within each site-night prior to modelling. We used the 40kHz Myotis complex due to the high proportion of error by Kaleidoscope and differentiating between these species. The Long-eared Myotis is not included in the 40KMyotis complex due to it's lower frequency call (Fc\~30-35kHz) making it more identifiable, and less likely to be misidentified by the program.
 
 #### **Model structure and selection**
 
-Nightly bat activity (number of recordings per site-night) was modelled using negative binomial generalized linear mixed models (GLMMs) with a log link, fitted in `glmmTMB` (Version 1.1.12). Each model included a random intercept for deployment (`1 | site:year`). This term was used in preference to a site-only intercept because nights within a deployment share a common detector, configuration, and weather window, and are therefore not independent replicates of a year. Fixed effects comprised a linear year term (years since 2020), a two-level detector-unit term (Wildlife Acoustics SM4 vs. Titley Anabat Swift, with Swift as the reference) included to account for potential differences in detection attributable to unit type, and a taxon-specific set of environmental covariates.
+Nightly bat activity (number of recordings per site-night) was modelled using negative binomial generalized linear mixed models (GLMMs) with a log link, fitted in `glmmTMB` (Version 1.1.12). Each model included a random intercept for deployment (`1 | site:year`). This term was used in preference to a site-only intercept because nights within a deployment share a common detector, configuration, and weather window, and are therefore not independent replicates of a year. Fixed effects comprised a linear year term (years since 2020), a two-level detector-unit term (Wildlife Acoustics SM4 vs. Titley Anabat Swift) included to account for potential differences in detection attributable to unit type, and a taxon-specific set of environmental covariates.
 
 For each taxon, candidate models were ranked by AICc and the covariate set from the top-ranked (lowest AICc) model was retained.
 
@@ -1259,7 +1259,7 @@ if (is_html) {
 
 ## *Species detected and mean nightly activity*
 
-Eight species were recorded across the study. Silver-haired bat (*Lasionycteris noctivagans*) and Little Brown Bat (*Myotis lucifugus*) were detected across every site/driving transect and year. Northern myotis (*Myotis septentrionalis*) was by far the scarcest species, detected only at Fenlands in 2022 and 2024, and Golf Course in 2022, 2023 and 2024 ([@tbl-sppmean], @fig-sites). The Little Brown Bat had the highest number of species detections across all years (`r totalspp$total[totalspp$species == "MYLU"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYLU"]`). This was followed by Long-legged Myotis (`r totalspp$total[totalspp$species == "MYVO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYVO"]`), and Eastern Red Bat (`r totalspp$total[totalspp$species == "LABO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LABO"]`).
+Eight species were recorded across the study. Silver-haired bat (*Lasionycteris noctivagans*) and Little Brown Bat (*Myotis lucifugus*) were detected across every site/driving transect and year. Northern myotis (*Myotis septentrionalis*) was the least detected species, recorded only at Fenlands in 2022 and 2024, and Golf Course in 2022, 2023 and 2024 ([@tbl-sppmean], @fig-sites). The Little Brown Bat had the highest number of species detections across all years (`r totalspp$total[totalspp$species == "MYLU"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYLU"]`). This was followed by Long-legged Myotis (`r totalspp$total[totalspp$species == "MYVO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "MYVO"]`), and Eastern Red Bat (`r totalspp$total[totalspp$species == "LABO"]` ; nightly mean = `r totalspp$mean_total[totalspp$species == "LABO"]`).
 
 ```{r}
 #| label: fig-sites
@@ -1302,7 +1302,7 @@ Across all six modelled taxa, the year term (YearS, years since 2020) was non-si
 #| message: false
 #| include: true
 #| tbl-pos: H
-#| tbl-cap: Species trend estimate model results. Need to explain what the estimate is telling us since this is in a log scale
+#| tbl-cap: Year-over-year trend estimates for six bat taxa in the Banff NABat grid cell, 2020–2025. Trends are from negative binomial GLMMs of nightly detections and are expressed as incidence rate ratios (IRRs) for the year term. IRR > 1 indicates an increasing trend, IRR < 1 a decreasing trend, and IRR = 1 no change. A 95% confidence interval spanning 1.0 indicates the trend is not statistically significant at α = 0.05. "Covariates Used" lists the environmental terms retained in each taxon's model; a deployment random intercept, year, and detector unit were included in all models.
 #| label: tbl-spptrend
 
 trend_tbl <- models_summary |>
@@ -1389,15 +1389,21 @@ Two taxa showed negative estimates that, while not significant, are important to
 
 # Discussion
 
-Data used for trends only uses autoID from Kaleidoscope, which has been shown to confuse Myotis spp. for LABO. so be careful here.
+Our six-year activity-trend analysis for the Banff grid cell revealed no statistically significant directional change in nightly bat activity for any of the six modelled taxa, providing preliminary evidence of relatively stable bat activity within the cell since monitoring began in 2020. Four taxa trended positive or flat: Big Brown Bat (EPFU) and Long-eared Myotis (MYEV) positive, Silver-haired Bat (LANO) and Eastern Red Bat (LABO) essentially flat ( @fig-trends). Two taxa showed negative point estimates: the 40 kHz Myotis complex (40KMyo) declined by roughly 30% per year and Hoary bat (LACI) by roughly 10% per year. Although neither reached significance, both are taxa of conservation concern, and continued monitoring will be needed to determine whether these apparent declines are real.
 
-Results must be taken with caution because of small sample size, but overall can conclude that bat species at the grid cell are stable. LACI was almost significatna dn showed a decline, this means that close inspection should be followed here. This is no suprise seeing the increasing wind turbine development in the province and elsewhere.
+These local patterns are best interpreted alongside broader-scale analyses. Province-wide NABat relative abundance modelling has documented a significant \~40% decline in abundance for Hoary Bats across Alberta between 2012 and 2023 (mean = −0.39, 95% CI −0.61 to −0.13), together with a smaller, non-significant decline of \~15% for Silver-haired bats (mean = −0.15, 95% CI −0.45 to 0.22; [@bradleyjudell]). Although our grid-cell estimates were not significant, the negative direction of our Hoary bat trend is consistent with this regional signal. The difference in statistical power is expected: the provincial estimates integrate data across all of Alberta, whereas our analysis is restricted to a single grid cell. Our smaller sample size and spatial extent produce greater variance and reduced power to detect trends, so the absence of local significance does not contradict the broader decline. Placing our results within this regional and continental context is therefore essential to their interpretation. The decline of migratory tree bats such as the Hoary Bat has been widely linked to mortality at wind-energy facilities ([@zimmerling2016Bat]). The continued expansion of wind-energy development across the region may therefore place further pressure on this species.
 
-How does this compare to the NABat abundance results for LABO, LACI and LANO in the whole region?
+The 40KMyo complex warrants particular attention. NABat occupancy analyses for Alberta (2010–2019) suggest that Little Brown bat, Northern Myotis, and Long-legged Myotis populations were stable over that period ([@udell2022]). Our complex, which we expect is dominated by the Little Brown bat, instead points to a potential decline, albeit without statistical significance. This divergence is most likely due to the recent arrival of white-nose syndrome (WNS) to the province. *Pseudogymnoascus destructans* (Pd), the causative fungus, was first detected in Alberta in 2022 and has since spread across the province ([@cwhc-rcsf2024Canadian]). WNS was confirmed in the south eastern part of the province in 2023, and as of winter 2026 WNS has been confirmed in the Rocky Mountains, including at Cadomin Cave, a major regional hibernaculum (L. Wilkinson, pers. comm.). Given the severe overwinter mortality WNS causes in hibernating *Myotis*, marked declines inLittle Brown bat and Northern Myotis, are anticipated in the coming years. While our study period largely predates confirmed WNS at this location, the negative 40KMyo estimate underscores the importance of sustained monitoring of this complex as the disease establishes.
 
-Keep in mind that in the winter of 2026 WNS has been confirmed across the Rockies and most importantly in Cadamun cave. This just points to the importance of continues monitoring in the region. This will likely be important to keep in mind and will mean the decrease of MYLU and MYSE
+These conclusions must be tempered by several limitations. Most importantly, our inferences are constrained by the small sample size and limited spatial extent of a single grid cell, which reduce statistical power and amplify the influence of individual site-years. In addition, the trend analysis relied solely on automated classifications from Kaleidoscope, which misclassifies bat calls at high rate. Such misclassification introduces uncertainty into species-level detection counts and may bias trend estimates, particularly among acoustically similar species.
+
+Overall, and with these caveats in mind, our results indicate that bat activity within the Banff grid cell has remained relatively stable over the 2020–2025 monitoring period. However, the negative point estimates for Hoary bat and 40KMyotis comples, combined with documented regional declines and the ongoing spread of WNS and wind turbine development, reinforce the value of continued long-term acoustic monitoring at this site.
+
+{{< pagebreak >}}
 
 # Acknowledgements
+
+We thank the Parks Canada biologists in Banff National Park who collected the acoustic data. The NNW Bat Hub, which coordinates and compiles long-term acoustic bat monitoring data for the province of Alberta, has been funded in part by the Government of Alberta.
 
 {{< pagebreak >}}
 
